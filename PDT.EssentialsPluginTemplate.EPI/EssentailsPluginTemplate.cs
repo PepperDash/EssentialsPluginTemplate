@@ -12,13 +12,16 @@ using PepperDash.Core;
 
 namespace EssentialsPluginTemplateEPI 
 {
-	public class EssentialsPluginTemplate
+    /// <summary>
+    /// This class contains the necessary properties and static methods required to function as an Essentials Plugin
+    /// </summary>
+	public class EssentialsPluginFactory
 	{
         /// <summary> 
         /// This string is used to define the minimum version of the
         /// Essentials Framework required for this plugin
         /// </summary>
-        public static string MinimumEssentialsFrameworkVersion = "1.4.23";
+        public static string MinimumEssentialsFrameworkVersion = "1.4.31";
 
         /// <summary>
         /// This method will get called by Essentials when this plugin is loaded.  
@@ -26,11 +29,14 @@ namespace EssentialsPluginTemplateEPI
         /// </summary>
 		public static void LoadPlugin()
 		{
-			PepperDash.Essentials.Core.DeviceFactory.AddFactoryForType("EssentialsPluginTemplate", EssentialsPluginTemplate.BuildDevice);	
+			PepperDash.Essentials.Core.DeviceFactory.AddFactoryForType("EssentialsPluginTemplate", EssentialsPluginFactory.BuildDevice);	
+
+            // Add additional factories for each type here
 		}
 
         /// <summary>
-        /// Builds an instance of the device type
+        /// Builds an instance of the device type.  There should be method like this defined for each device type your plugin needs
+        /// to be able to build
         /// </summary>
         /// <param name="dc">The device configuration</param>
         /// <returns>The device</returns>

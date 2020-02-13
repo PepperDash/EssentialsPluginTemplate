@@ -21,3 +21,26 @@ C:\Users\JTA\Documents\Stash Folder\Frameworks\PDT.EssentialsPluginTemplate.EPI\
 C:\Users\JTA\Documents\Stash Folder\Frameworks\PDT.EssentialsPluginTemplate.EPI\PDT.EssentialsPluginTemplate.EPI\bin\Debug\Crestron.SimplSharpPro.DM.dll
 C:\Users\JTA\Documents\Stash Folder\Frameworks\PDT.EssentialsPluginTemplate.EPI\PDT.EssentialsPluginTemplate.EPI\obj\Debug\PDT.EssentialsPluginTemplate.EPI.dll
 C:\Users\JTA\Documents\Stash Folder\Frameworks\PDT.EssentialsPluginTemplate.EPI\PDT.EssentialsPluginTemplate.EPI\obj\Debug\PDT.EssentialsPluginTemplate.EPI.pdb
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\obj\Debug\ResolveAssemblyReference.cache
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\obj\Debug\PDT.EssentialsPluginTemplate.EPI.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\obj\Debug\PDT.EssentialsPluginTemplate.EPI.pdb
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\PDT.EssentialsPluginTemplate.EPI.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\PDT.EssentialsPluginTemplate.EPI.pdb
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\PepperDash_Core.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\PepperDash_Essentials_Core.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\PepperDash_Essentials_DM.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\PepperDashEssentials.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\SimplSharpNewtonsoft.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\SimplSharpReflectionInterface.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\Crestron.SimplSharpPro.Lighting.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\Crestron.SimplSharpPro.Gateways.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\SimplSharpSQLHelperInterface.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\Crestron.SimplSharpPro.Fusion.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\Crestron.SimplSharpPro.Shades.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\Crestron.SimplSharpPro.EthernetCommunications.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\Crestron.SimplSharpPro.DeviceSupport.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\Crestron.SimplSharpPro.UI.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\SimplSharpTimerEventInterface.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\Essentials Devices Common.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\Crestron.SimplSharpPro.GeneralIO.dll
+C:\Working Directories\PD\EssentialsPluginTemplate\PDT.EssentialsPluginTemplate.EPI\bin\Debug\Crestron.SimplSharpPro.DM.dll

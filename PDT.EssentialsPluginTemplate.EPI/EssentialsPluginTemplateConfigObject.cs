@@ -4,9 +4,23 @@ using System.Linq;
 using System.Text;
 using Crestron.SimplSharp;
 
+using PepperDash.Core;
+
+using Newtonsoft.Json;
+
 namespace EssentialsPluginTemplateEPI
 {
-	public class EssentialsPluginTemplateConfigObject
+    /// <summary>
+    /// Example of a config class that represents the structure of the Properties object of a DeviceConfig
+    /// </summary>
+	public class EssentialsPluginTemplatePropertiesConfig 
 	{
+        /// <summary>
+        /// Control properties if needed to communicate with device
+        /// </summary>
+        [JsonProperty("control")]
+        ControlPropertiesConfig Control { get; set; }
+
+
 	}
 }

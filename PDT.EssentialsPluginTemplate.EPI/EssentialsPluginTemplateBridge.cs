@@ -5,6 +5,7 @@ using System.Text;
 
 using Crestron.SimplSharp;
 using Crestron.SimplSharpPro.DeviceSupport;
+using Crestron.SimplSharp.Reflection;
 
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
@@ -51,7 +52,12 @@ namespace EssentialsPluginTemplateEPI
 
 		public override void OffsetJoinNumbers(uint joinStart)
 		{
-            // Offset the joins from joinStart as applicable
+			GetType()
+				.GetCType()
+				.GetProperties()
+				.Where(x => x.PropertyType == typeof(uint))
+				.ToList()
+				.ForEach(prop => prop.SetValue(this, (uint)prop.GetValue(this, null) + joinStart - 1, null));
 		}
 	}
 }

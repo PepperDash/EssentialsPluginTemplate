@@ -46,6 +46,10 @@
     <GenerateSerializationAssemblies>off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Essentials Devices Common, Version=1.4.7335.30139, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\EssentialsBuilds\Essentials Devices Common.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="PepperDashEssentials, Version=1.4.19.29953, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

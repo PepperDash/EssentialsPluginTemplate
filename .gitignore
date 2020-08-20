@@ -355,3 +355,4 @@ MigrationBackup/
 # Crestron Zip Files
 *.cplz
 *.clz
+*.projectinfo

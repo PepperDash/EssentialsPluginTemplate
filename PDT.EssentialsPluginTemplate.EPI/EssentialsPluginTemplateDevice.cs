@@ -1,22 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Crestron.SimplSharp;
-using Crestron.SimplSharpPro.DeviceSupport;
-
-using PepperDash.Essentials;
+﻿using Crestron.SimplSharpPro.DeviceSupport;
+using Newtonsoft.Json;
+using PDT.EssentialsPluginTemplate.EPI;
 using PepperDash.Essentials.Core;
-using PepperDash.Essentials.Core.Config;
+using PepperDash.Essentials.Core.Bridges;
 using PepperDash.Core;
-using PepperDash.Essentials.Bridges;
 
 namespace EssentialsPluginTemplateEPI
 {
     /// <summary>
     /// Example of a plugin device
     /// </summary>
-    public class EssentialsPluginTemplateDevice : Device, IBridge
+    public class EssentialsPluginTemplateDevice : EssentialsDevice, IBridgeAdvanced
     {
         /// <summary>
         /// Device Constructor.  Called by BuildDevice
@@ -46,9 +40,28 @@ namespace EssentialsPluginTemplateEPI
         /// <param name="trilist"></param>
         /// <param name="joinStart"></param>
         /// <param name="joinMapKey"></param>
-        public void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey)
+        public void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
         {
-            this.LinkToApi(trilist, joinStart, joinMapKey);
+            // Construct the default join map
+            var joinMap = new EssentialsPluginTemplateBridgeJoinMap(joinStart);
+
+            // Attempt to get a custom join map if specified in config
+            var joinMapSerialized = JoinMapHelper.GetJoinMapForDevice(joinMapKey);
+
+            // If we find a custom join map, deserialize it
+            if (!string.IsNullOrEmpty(joinMapSerialized))
+                joinMap = JsonConvert.DeserializeObject<EssentialsPluginTemplateBridgeJoinMap>(joinMapSerialized);
+
+            //Checking if the bridge is null allows for backwards compatability with configurations that use EiscApi instead of EiscApiAdvanced
+            if (bridge != null)
+            {
+                bridge.AddJoinMap(Key, joinMap);
+            }
+
+            // Set all your join actions here
+
+
+            // Link all your feedbacks to joins here
         }
     }
 }

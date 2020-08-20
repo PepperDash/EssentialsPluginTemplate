@@ -1,4 +1,4 @@
-$latestVersions = $(git tag --merged origin/master)
+$latestVersions = $(git tag --merged origin/main)
 $latestVersion = [version]"0.0.0"
 Foreach ($version in $latestVersions) {
   Write-Host $version
@@ -17,7 +17,7 @@ $newVersion = [version]$latestVersion
 $phase = ""
 $newVersionString = ""
 switch -regex ($Env:GITHUB_REF) {
-  '^refs\/heads\/master*.' {
+  '^refs\/heads\/main*.' {
     $newVersionString = "{0}.{1}.{2}" -f $newVersion.Major, $newVersion.Minor, ($newVersion.Build + 1)
   }
   '^refs\/heads\/feature\/*.' {

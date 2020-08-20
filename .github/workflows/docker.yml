@@ -6,7 +6,7 @@ on:
       - feature/*
       - hotfix/*
       - release/*
-      - master
+      - main
       - development
 
 env:
@@ -18,8 +18,8 @@ env:
   VERSION: 0.0.0-buildtype-buildnumber
   # Defaults to debug for build type
   BUILD_TYPE: Debug
-  # Defaults to master as the release branch.  Change as necessary
-  RELEASE_BRANCH: master
+  # Defaults to main as the release branch.  Change as necessary
+  RELEASE_BRANCH: main
 jobs:
   Build_Project:
     runs-on: windows-latest
@@ -38,7 +38,7 @@ jobs:
           git submodule sync --recursive
           git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive --depth=1
       # Set the BUILD_TYPE environment variable
-      - name: Set Build to Release if triggered from Master
+      - name: Set Build to Release if triggered from main
         run: |
           if("$($Env:GITHUB_REF)".contains("$($Env:RELEASE_BRANCH)")) {
             Write-Host "Setting build type to Release"
@@ -59,6 +59,11 @@ jobs:
         run: |
           Write-Output ${{ env.VERSION }}
           ./.github/scripts/UpdateAssemblyVersion.ps1 ${{ env.VERSION }}
+      - name: Login to Docker
+        uses: azure/docker-login@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
       # Build the solutions in the docker image
       - name: Build Solution
         shell: powershell

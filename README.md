@@ -10,7 +10,7 @@ Fork this repo when creating a new plugin for Essentials. For more information a
 
 ## Cloning Instructions
 
-After using a fork of this repo as a template to create a new repository, you must install the necessary dependencies:
+After forking this repository into your own GitHub space, you can create a new repository using this one as the template.  Then you must install the necessary dependencies as indicated below.
 
 ## Dependencies
 

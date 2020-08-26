@@ -20,7 +20,7 @@ The [Essentials](https://github.com/PepperDash/Essentials) libraries are require
 
 To install dependencies once nuget.exe is installed, run the following command from the root directory of your repository:
 `nuget install .\packages.config -OutputDirectory .\packages -excludeVersion`.
-To verify that the packages installed correctly, open Essentials and make sure that all references are found, then try and build it.
+To verify that the packages installed correctly, open the plugin solution in your repo and make sure that all references are found, then try and build it.
 
 ### Installing Different versions of PepperDash Core
 

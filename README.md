@@ -28,4 +28,6 @@ If you need a different version of PepperDash Core, use the command `nuget insta
 
 ### Instructions for Renaming Solution and Files
 
-See the Task List in Visual Studio to help identify what needs to be renamed.  There is extensive inline documentation adn examples as well.
+See the Task List in Visual Studio for a guide on how to start using the templage.  There is extensive inline documentation and examples as well.
+
+For renaming instructions in particular, see the XML `remarks` tags on class definitions

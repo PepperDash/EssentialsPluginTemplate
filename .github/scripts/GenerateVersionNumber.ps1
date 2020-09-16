@@ -22,17 +22,21 @@ switch -regex ($Env:GITHUB_REF) {
   }
   '^refs\/heads\/feature\/*.' {
     $phase = 'alpha'
+    $newVersionString = "{0}.{1}.{2}-{3}-{4}" -f $newVersion.Major, $newVersion.Minor, ($newVersion.Build + 1), $phase, $Env:GITHUB_RUN_NUMBER
   }
   '^refs\/heads\/release\/*.' {
     $phase = 'rc'
+    $newVersionString = "{0}.{1}.{2}-{3}-{4}" -f $newVersion.Major, $newVersion.Minor, ($newVersion.Build + 1), $phase, $Env:GITHUB_RUN_NUMBER
   }
   '^refs\/heads\/development*.' {
     $phase = 'beta'
+    $newVersionString = "{0}.{1}.{2}-{3}-{4}" -f $newVersion.Major, $newVersion.Minor, ($newVersion.Build + 1), $phase, $Env:GITHUB_RUN_NUMBER
   }
   '^refs\/heads\/hotfix\/*.' {
     $phase = 'hotfix'
+    $newVersionString = "{0}.{1}.{2}-{3}-{4}" -f $newVersion.Major, $newVersion.Minor, ($newVersion.Build + 1), $phase, $Env:GITHUB_RUN_NUMBER
   }
 }
-$newVersionString = "{0}.{1}.{2}-{3}-{4}" -f $newVersion.Major, $newVersion.Minor, ($newVersion.Build + 1), $phase, $Env:GITHUB_RUN_NUMBER
+
 
 Write-Output $newVersionString

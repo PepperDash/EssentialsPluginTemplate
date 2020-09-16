@@ -25,3 +25,9 @@ To verify that the packages installed correctly, open the plugin solution in you
 ### Installing Different versions of PepperDash Core
 
 If you need a different version of PepperDash Core, use the command `nuget install .\packages.config -OutputDirectory .\packages -excludeVersion -Version {versionToGet}`. Omitting the `-Version` option will pull the version indicated in the packages.config file.
+
+### Instructions for Renaming Solution and Files
+
+See the Task List in Visual Studio for a guide on how to start using the templage.  There is extensive inline documentation and examples as well.
+
+For renaming instructions in particular, see the XML `remarks` tags on class definitions

@@ -188,7 +188,7 @@ namespace EssentialsPluginTemplate
         {
             // Set the minimum Essentials Framework Version
             // TODO [ ] Update the Essentials minimum framework version which this plugin has been tested against
-            MinimumEssentialsFrameworkVersion = "1.6.4";
+            MinimumEssentialsFrameworkVersion = "1.7.5";
 
             // In the constructor we initialize the list with the typenames that will build an instance of this device
             // TODO [ ] Update the TypeNames for the plugin being developed

@@ -5,6 +5,8 @@ using Crestron.SimplSharpPro.DeviceSupport;
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
+using PepperDash_Essentials_Core.Queues;
+
 
 namespace EssentialsPluginTemplate
 {
@@ -23,6 +25,11 @@ namespace EssentialsPluginTemplate
         /// It is often desirable to store the config
         /// </summary>
         private EssentialsPluginConfigObjectTemplate _config;
+
+        /// <summary>
+        /// Provides a queue and dedicated worker thread for processing feedback messages from a device.
+        /// </summary>
+        private GenericQueue ReceiveQueue;
 
         #region IBasicCommunication Properties and Constructor.  Remove if not needed.
 
@@ -100,6 +107,8 @@ namespace EssentialsPluginTemplate
 
 			_config = config;
 
+            ReceiveQueue = new GenericQueue(key + "-rxqueue");  // If you need to set the thread priority, use one of the available overloaded constructors.
+
 			ConnectFeedback = new BoolFeedback(() => Connect);
 			OnlineFeedback = new BoolFeedback(() => _commsMonitor.IsOnline);
 			StatusFeedback = new IntFeedback(() => (int)_commsMonitor.Status);
@@ -149,7 +158,9 @@ namespace EssentialsPluginTemplate
 		private void Handle_LineRecieved(object sender, GenericCommMethodReceiveTextArgs args)
 		{
 			// TODO [ ] Implement method 
-			throw new System.NotImplementedException();
+			
+            // Enqueues the message to be processed in a dedicated thread, but the specified method
+            ReceiveQueue.Enqueue(new ProcessStringMessage(args.Text, ProcessFeedbackMessage));
 		}
 
         // TODO [ ] If not using an HEX/byte based API with no delimeter,  delete the method below
@@ -164,6 +175,15 @@ namespace EssentialsPluginTemplate
         {
             // TODO [ ] Implement method 
             throw new System.NotImplementedException();
+        }
+
+        /// <summary>
+        /// This method should perform any necessary parsing of feedback messages from the device
+        /// </summary>
+        /// <param name="message"></param>
+        void ProcessFeedbackMessage(string message)
+        {
+
         }
 
 

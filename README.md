@@ -40,3 +40,15 @@ If you need a different version of PepperDash Core, use the command `nuget insta
 See the Task List in Visual Studio for a guide on how to start using the templage.  There is extensive inline documentation and examples as well.
 
 For renaming instructions in particular, see the XML `remarks` tags on class definitions
+
+## Build Instructions (PepperDash Internal) 
+
+## Generating Nuget Package 
+
+In the solution folder is a file named "PDT.EssentialsPluginTemplate.nuspec-TEMPLATE" 
+
+1. Remove the -TEMPLATE so that the extention is .nuspec. 
+2. Rename the file to match your plugin solution name 
+3. Edit the file to include your project specifics including
+    1. <id>PepperDash.Essentials.Plugin.MakeModel</id> Convention is to use the prefix "PepperDash.Essentials.Plugin" and include the MakeModel of the device. 
+    2. <projectUrl>https://github.com/PepperDash/EssentialsPluginTemplate</projectUrl> Change to your url to the project repo

@@ -196,7 +196,7 @@ jobs:
           Remove-Item -Path ./Version/version.txt
           Remove-Item -Path ./Version
       - name: Download Build output
-        :if: $NUSPECNAME != 'PDT.EssentialsPluginTemplate'
+        if: $NUSPECNAME != 'PDT.EssentialsPluginTemplate'
         uses: actions/download-artifact@v1
         with:
           name: Build

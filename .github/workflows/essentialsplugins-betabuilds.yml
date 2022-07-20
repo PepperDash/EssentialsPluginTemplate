@@ -229,7 +229,7 @@ jobs:
         shell: powershell
         run: |
           $nuspec = Get-ChildItem *.nuspec -recurse 
-          $NUSPECNAME = nuspec.BaseName
+          $NUSPECNAME = $nuspec.BaseName
           echo "NUSPEC_FILE=$($NUSPECNAME)"| Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Download Build Version Info

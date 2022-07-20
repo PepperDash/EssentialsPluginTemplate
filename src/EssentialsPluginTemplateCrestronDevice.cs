@@ -34,7 +34,7 @@ namespace EssentialsPluginTemplate
         /// <param name="name"></param>
         /// <param name="config"></param>
         /// <param name="hardware"></param>
-        public EssentialsPluginTemplateCrestronDevice(string key, string name, EssentialsPluginConfigObjectTemplate config, GenericBase hardware)
+        public EssentialsPluginTemplateCrestronDevice(string key, string name, EssentialsPluginTemplateConfigObject config, GenericBase hardware)
             : base(key, name, hardware)
         {
             Debug.Console(0, this, "Constructing new {0} instance", name);
@@ -60,7 +60,7 @@ namespace EssentialsPluginTemplate
         /// <param name="bridge"></param>
         public override void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
         {
-            var joinMap = new EssentialsPluginBridgeJoinMapTemplate(joinStart);
+            var joinMap = new EssentialsPluginTemplateBridgeJoinMap(joinStart);
 
             // This adds the join map to the collection on the bridge
             if (bridge != null)

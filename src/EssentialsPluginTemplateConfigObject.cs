@@ -139,7 +139,7 @@ namespace EssentialsPluginTemplate
 		/// </code>
 		/// </example>
 		[JsonProperty("DeviceDictionary")]
-		public Dictionary<string, EssentialsPluginConfigObjectDictionaryTemplate> DeviceDictionary { get; set; }
+		public Dictionary<string, EssentialsPluginTemplateConfigObjectDictionary> DeviceDictionary { get; set; }
 
 		/// <summary>
 		/// Constuctor
@@ -148,9 +148,9 @@ namespace EssentialsPluginTemplate
 		/// If using a collection you must instantiate the collection in the constructor
 		/// to avoid exceptions when reading the configuration file 
 		/// </remarks>
-		public EssentialsPluginConfigObjectTemplate()
+        public EssentialsPluginTemplateConfigObject()
 		{
-			DeviceDictionary = new Dictionary<string, EssentialsPluginConfigObjectDictionaryTemplate>();
+			DeviceDictionary = new Dictionary<string, EssentialsPluginTemplateConfigObjectDictionary>();
 		}
 	}
 

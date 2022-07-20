@@ -177,15 +177,15 @@ jobs:
         shell: powershell
         run: |
           $nuspec_file = Get-ChildItem *.nuspec -recurse
-          env.NUSPECNAME = $($nuspec_file.BaseName)
+          ${{ env.NUSPECNAME }} = $($nuspec_file.BaseName)
           echo "NUSPEC_FILE=$($nuspec_file.BaseName)"| Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Download Build Version Info
-        if: ${{env.NUSPECNAME != 'PDT.EssentialsPluginTemplate'}}
+        if: ${{ env.NUSPECNAME != 'PDT.EssentialsPluginTemplate '}}
         uses: actions/download-artifact@v1
         with:
           name: Version
       - name: Set Version Number
-        if: ${{env.NUSPECNAME != 'PDT.EssentialsPluginTemplate'}}
+        if: ${{ env.NUSPECNAME != 'PDT.EssentialsPluginTemplate' }}
         shell: powershell
         run: |
           Get-ChildItem "./Version"
@@ -195,39 +195,39 @@ jobs:
           Remove-Item -Path ./Version/version.txt
           Remove-Item -Path ./Version
       - name: Download Build output
-        if: ${{env.NUSPECNAME != 'PDT.EssentialsPluginTemplate'}}
+        if: ${{ env.NUSPECNAME != 'PDT.EssentialsPluginTemplate' }}
         uses: actions/download-artifact@v1
         with:
           name: Build
           path: ./
       - name: Unzip Build file
-        if: ${{env.NUSPECNAME != 'PDT.EssentialsPluginTemplate'}}
+        if: ${{ env.NUSPECNAME != 'PDT.EssentialsPluginTemplate' }}
         run: |
           Get-ChildItem .\*.zip | Expand-Archive -DestinationPath .\
           Remove-Item -Path .\*.zip
       - name: Copy Files to root & delete output directory
-        if: ${{env.NUSPECNAME != 'PDT.EssentialsPluginTemplate'}}
+        if: ${{ env.NUSPECNAME != 'PDT.EssentialsPluginTemplate' }}
         run: |
           Remove-Item -Path .\* -Include @("*.cpz","*.md","*.cplz","*.json","*.dll","*.clz")  
           Get-ChildItem -Path .\output\* | Copy-Item -Destination .\
           Remove-Item -Path .\output -Recurse
       #Pushes to github nuget store
       - name: Add nuget.exe
-        if: ${{env.NUSPECNAME != 'PDT.EssentialsPluginTemplate'}}
+        if: ${{ env.NUSPECNAME != 'PDT.EssentialsPluginTemplate' }}
         uses: nuget/setup-nuget@v1
       - name: Add Github Packages source
-        if: ${{env.NUSPECNAME != 'PDT.EssentialsPluginTemplate'}}
+        if: ${{ env.NUSPECNAME != 'PDT.EssentialsPluginTemplate' }}
         run: nuget sources add -name github -source https://nuget.pkg.github.com/pepperdash/index.json -username Pepperdash -password ${{ secrets.GITHUB_TOKEN }}
       # Pushes to nuget gallery, not needed unless publishing publicly
       - name: Add nuget.org API Key
-        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && ${{env.NUSPECNAME != 'PDT.EssentialsPluginTemplate'}}
+        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && ${{ env.NUSPECNAME != 'PDT.EssentialsPluginTemplate' }}
         run: nuget setApiKey ${{ secrets.NUGET_API_KEY }}
       - name: Create nuget package
-        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && ${{env.NUSPECNAME != 'PDT.EssentialsPluginTemplate'}}
+        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && ${{ env.NUSPECNAME != 'PDT.EssentialsPluginTemplate' }}
         run: nuget pack "./${{ env.NUSPEC_FILE}}.nuspec" -version ${{ env.VERSION }}
       - name: Publish nuget package to Github registry
-        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && ${{env.NUSPECNAME != 'PDT.EssentialsPluginTemplate'}}
+        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && ${{ env.NUSPECNAME != 'PDT.EssentialsPluginTemplate' }}
         run: nuget push **/*.nupkg -source github
       - name: Publish nuget package to nuget.org
-        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && ${{env.NUSPECNAME != 'PDT.EssentialsPluginTemplate'}}
+        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && ${{ env.NUSPECNAME != 'PDT.EssentialsPluginTemplate' }}
         run: nuget push **/*.nupkg -Source https://api.nuget.org/v3/index.json

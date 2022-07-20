@@ -24,7 +24,7 @@ namespace EssentialsPluginTemplate
         /// <summary>
         /// It is often desirable to store the config
         /// </summary>
-        private EssentialsPluginConfigObjectTemplate _config;
+        private EssentialsPluginTemplateConfigObject _config;
 
         /// <summary>
         /// Provides a queue and dedicated worker thread for processing feedback messages from a device.
@@ -98,7 +98,7 @@ namespace EssentialsPluginTemplate
 		/// <param name="name"></param>
 		/// <param name="config"></param>
 		/// <param name="comms"></param>
-		public EssentialsPluginTemplateDevice(string key, string name, EssentialsPluginConfigObjectTemplate config, IBasicCommunication comms)
+        public EssentialsPluginTemplateDevice(string key, string name, EssentialsPluginTemplateConfigObject config, IBasicCommunication comms)
 			: base(key, name)
 		{
 			Debug.Console(0, this, "Constructing new {0} instance", name);
@@ -244,7 +244,7 @@ namespace EssentialsPluginTemplate
         /// <param name="bridge"></param>
         public override void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
         {
-            var joinMap = new EssentialsPluginBridgeJoinMapTemplate(joinStart);
+            var joinMap = new EssentialsPluginTemplateBridgeJoinMap(joinStart);
 
             // This adds the join map to the collection on the bridge
             if (bridge != null)

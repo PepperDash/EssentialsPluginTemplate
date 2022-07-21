@@ -167,74 +167,9 @@ jobs:
           asset_content_type: application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    needs: Build_Project
-    runs-on: windows-2019
-    env: 
-      NUSPECNAME: default
-    steps:
-      - name: Get nuget File 
-        shell: powershell
-        run: |
-          $nuspec_file = Get-ChildItem *.nuspec -recurse
-          echo "NUSPECNAME=$($nuspec_file.BaseName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "NUSPEC_FILE=$($nuspec_file.BaseName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-      - name: Download Build Version Info
-        if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
-        uses: actions/download-artifact@v1
-        with:
-          name: Version
-      - name: Set Version Number
-        if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
-        shell: powershell
-        run: |
-          Get-ChildItem "./Version"
-          $version = Get-Content -Path ./Version/version.txt
-          Write-Host "Version: $version"
-          echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          Remove-Item -Path ./Version/version.txt
-          Remove-Item -Path ./Version
-      - name: Download Build output
-        if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
-        uses: actions/download-artifact@v1
-        with:
-          name: Build
-          path: ./
-      - name: Unzip Build file
-        if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
-        run: |
-          Get-ChildItem .\*.zip | Expand-Archive -DestinationPath .\
-          Remove-Item -Path .\*.zip
-      - name: Copy Files to root & delete output directory
-        if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
-        run: |
-          Remove-Item -Path .\* -Include @("*.cpz","*.md","*.cplz","*.json","*.dll","*.clz")  
-          Get-ChildItem -Path .\output\* | Copy-Item -Destination .\
-          Remove-Item -Path .\output -Recurse
-      #Pushes to github nuget store
-      - name: Add nuget.exe
-        if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
-        uses: nuget/setup-nuget@v1
-      - name: Add Github Packages source
-        if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
-        run: nuget sources add -name github -source https://nuget.pkg.github.com/pepperdash/index.json -username Pepperdash -password ${{ secrets.GITHUB_TOKEN }}
-      # Pushes to nuget gallery, not needed unless publishing publicly
-      - name: Add nuget.org API Key
-        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && !contains(env.NUSPECNAME, 'EssentialsPluginTemplate')
-        run: nuget setApiKey ${{ secrets.NUGET_API_KEY }}
-      - name: Create nuget package
-        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && !contains(env.NUSPECNAME, 'EssentialsPluginTemplate')
-        run: nuget pack "./${{ env.NUSPEC_FILE}}.nuspec" -version ${{ env.VERSION }}
-      - name: Publish nuget package to Github registry
-        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && !contains(env.NUSPECNAME, 'EssentialsPluginTemplate')
-        run: nuget push **/*.nupkg -source github
-      - name: Publish nuget package to nuget.org
-        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && !contains(env.NUSPECNAME, 'EssentialsPluginTemplate')
-        run: nuget push **/*.nupkg -Source https://api.nuget.org/v3/index.json
   Push_Nuget_Package:
     needs: Build_Project
     runs-on: windows-2019
-    env: 
-      NUSPECNAME: default
     steps:
       - name: Download Build Version Info
         uses: actions/download-artifact@v1
@@ -267,26 +202,26 @@ jobs:
         shell: powershell
         run: |
           $nuspec_file = (Get-ChildItem *.nuspec -recurse).BaseName
-          echo "NUSPECNAME=$($nuspec_file)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "NUSPEC_FILE=$($nuspec_file)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-      #Pushes to github nuget store
+      # Pulls the nuget builder packages
       - name: Add nuget.exe
-        if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
+        if: "!contains(env.NUSPEC_FILE, 'EssentialsPluginTemplate')"
         uses: nuget/setup-nuget@v1
+      # Creating nuget Packages
       - name: Add Github Packages source
-        if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
+        if: "!contains(env.NUSPEC_FILE, 'EssentialsPluginTemplate')"
         run: nuget sources add -name github -source https://nuget.pkg.github.com/pepperdash/index.json -username Pepperdash -password ${{ secrets.GITHUB_TOKEN }}
+      - name: Create nuget package
+        if: "!contains(env.NUSPEC_FILE, 'EssentialsPluginTemplate')"
+        run: nuget pack "./${{ env.NUSPEC_FILE}}.nuspec" -version ${{ env.VERSION }}
+      # Pushes to internal github registry
+      - name: Publish nuget package to Github registry
+        if: "!contains(env.NUSPEC_FILE, 'EssentialsPluginTemplate')"
+        run: nuget push **/*.nupkg -source github
       # Pushes to nuget gallery
       - name: Add nuget.org API Key
-        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && !contains(env.NUSPECNAME, 'EssentialsPluginTemplate')
+        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && !contains(env.NUSPEC_FILE, 'EssentialsPluginTemplate')
         run: nuget setApiKey ${{ secrets.NUGET_API_KEY }}
-      - name: Create nuget package
-        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && !contains(env.NUSPECNAME, 'EssentialsPluginTemplate')
-        run: nuget pack "./${{ env.NUSPEC_FILE}}.nuspec" -version ${{ env.VERSION }}
-      - name: Publish nuget package to Github registry
-        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && !contains(env.NUSPECNAME, 'EssentialsPluginTemplate')
-        run: nuget push **/*.nupkg -source github
       - name: Publish nuget package to nuget.org
-        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && !contains(env.NUSPECNAME, 'EssentialsPluginTemplate')
+        if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && !contains(env.NUSPEC_FILE, 'EssentialsPluginTemplate')
         run: nuget push **/*.nupkg -Source https://api.nuget.org/v3/index.json

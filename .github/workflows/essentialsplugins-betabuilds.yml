@@ -225,19 +225,11 @@ jobs:
     env: 
       NUSPECNAME: default
     steps:
-      - name: Get nuget File 
-        shell: powershell
-        run: |
-          $nuspec_file = Get-ChildItem *.nuspec -recurse
-          echo "NUSPECNAME=$($nuspec_file.BaseName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "NUSPEC_FILE=$($nuspec_file.BaseName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Download Build Version Info
-        if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
         uses: actions/download-artifact@v1
         with:
           name: Version
       - name: Set Version Number
-        if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
         shell: powershell
         run: |
           Get-ChildItem "./Version"
@@ -247,22 +239,26 @@ jobs:
           Remove-Item -Path ./Version/version.txt
           Remove-Item -Path ./Version
       - name: Download Build output
-        if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
         uses: actions/download-artifact@v1
         with:
           name: Build
           path: ./
       - name: Unzip Build file
-        if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
         run: |
           Get-ChildItem .\*.zip | Expand-Archive -DestinationPath .\
           Remove-Item -Path .\*.zip
       - name: Copy Files to root & delete output directory
-        if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
         run: |
           Remove-Item -Path .\* -Include @("*.cpz","*.md","*.cplz","*.json","*.dll","*.clz")  
           Get-ChildItem -Path .\output\* | Copy-Item -Destination .\
           Remove-Item -Path .\output -Recurse
+      - name: Get nuget File 
+        shell: powershell
+        run: |
+          $nuspec_file = (Get-ChildItem *.nuspec -recurse).BaseName
+          echo "NUSPECNAME=$($nuspec_file)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "NUSPEC_FILE=$($nuspec_file)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
       #Pushes to github nuget store
       - name: Add nuget.exe
         if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
@@ -270,7 +266,7 @@ jobs:
       - name: Add Github Packages source
         if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
         run: nuget sources add -name github -source https://nuget.pkg.github.com/pepperdash/index.json -username Pepperdash -password ${{ secrets.GITHUB_TOKEN }}
-      # Pushes to nuget gallery, not needed unless publishing publicly
+      # Pushes to nuget gallery
       - name: Add nuget.org API Key
         if: github.repository_owner == 'PepperDash' && github.repository_visibility == 'public' && !contains(env.NUSPECNAME, 'EssentialsPluginTemplate')
         run: nuget setApiKey ${{ secrets.NUGET_API_KEY }}

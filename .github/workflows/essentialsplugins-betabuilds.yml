@@ -229,8 +229,8 @@ jobs:
         shell: powershell
         run: |
           $nuspec_file = Get-ChildItem *.nuspec -recurse
-          echo "NUSPECNAME=$($nuspec_file.BaseName)" >> $GITHUB_ENV
-          echo "NUSPEC_FILE=$($nuspec_file.BaseName)"| Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "NUSPECNAME=$($nuspec_file.BaseName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "NUSPEC_FILE=$($nuspec_file.BaseName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Download Build Version Info
         if: "!contains(env.NUSPECNAME, 'EssentialsPluginTemplate')"
         uses: actions/download-artifact@v1

@@ -29,6 +29,7 @@ The [Essentials](https://github.com/PepperDash/Essentials) libraries are require
 
 To install dependencies once nuget.exe is installed, run the following command from the root directory of your repository:
 `nuget install .\packages.config -OutputDirectory .\packages -excludeVersion`.
+Alternatively, you can simply run the `GetPackages.bat` file.
 To verify that the packages installed correctly, open the plugin solution in your repo and make sure that all references are found, then try and build it.
 
 ### Installing Different versions of PepperDash Core
@@ -37,6 +38,21 @@ If you need a different version of PepperDash Core, use the command `nuget insta
 
 ### Instructions for Renaming Solution and Files
 
-See the Task List in Visual Studio for a guide on how to start using the templage.  There is extensive inline documentation and examples as well.
+See the Task List in Visual Studio for a guide on how to start using the template.  There is extensive inline documentation and examples as well.
 
 For renaming instructions in particular, see the XML `remarks` tags on class definitions
+
+## Build Instructions (PepperDash Internal) 
+
+## Generating Nuget Package 
+
+In the solution folder is a file named "PDT.EssentialsPluginTemplate.nuspec" 
+
+1. Rename the file to match your plugin solution name 
+2. Edit the file to include your project specifics including
+    1. <id>PepperDash.Essentials.Plugin.MakeModel</id> Convention is to use the prefix "PepperDash.Essentials.Plugin" and include the MakeModel of the device. 
+    2. <projectUrl>https://github.com/PepperDash/EssentialsPluginTemplate</projectUrl> Change to your url to the project repo
+
+There is no longer a requirement to adjust workflow files for nuget generation for private and public repositories.  This is now handled automatically in the workflow.
+
+__If you do not make these changes to the nuspec file, the project will not generate a nuget package__

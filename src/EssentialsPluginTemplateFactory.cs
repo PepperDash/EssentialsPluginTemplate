@@ -14,7 +14,7 @@ namespace EssentialsPluginTemplate
 	/// <example>
 	/// "EssentialsPluginFactoryTemplate" renamed to "MyDeviceFactory"
 	/// </example>
-    public class EssentialsPluginFactoryTemplate : EssentialsPluginDeviceFactory<EssentialsPluginTemplateDevice>
+    public class EssentialsPluginTemplateFactory : EssentialsPluginDeviceFactory<EssentialsPluginTemplateDevice>
     {
 		/// <summary>
 		/// Plugin device factory constructor
@@ -32,7 +32,7 @@ namespace EssentialsPluginTemplate
 		/// TypeNames = new List<string>() { "SamsungMdc", "SamsungMdcDisplay" };
         /// </code>
 		/// </example>
-        public EssentialsPluginFactoryTemplate()
+        public EssentialsPluginTemplateFactory()
         {
             // Set the minimum Essentials Framework Version
 			// TODO [ ] Update the Essentials minimum framework version which this plugin has been tested against
@@ -58,7 +58,7 @@ namespace EssentialsPluginTemplate
             Debug.Console(1, "[{0}] Factory Attempting to create new device from type: {1}", dc.Key, dc.Type);
 
             // get the plugin device properties configuration object & check for null 
-            var propertiesConfig = dc.Properties.ToObject<EssentialsPluginConfigObjectTemplate>();
+            var propertiesConfig = dc.Properties.ToObject<EssentialsPluginTemplateConfigObject>();
             if (propertiesConfig == null)
             {
                 Debug.Console(0, "[{0}] Factory: failed to read properties config for {1}", dc.Key, dc.Name);
@@ -91,7 +91,7 @@ namespace EssentialsPluginTemplate
     /// <example>
     /// "EssentialsPluginFactoryTemplate" renamed to "MyLogicDeviceFactory"
     /// </example>
-    public class EssentialsPluginFactoryLogicDeviceTemplate : EssentialsPluginDeviceFactory<EssentialsPluginTemplateLogicDevice>
+    public class EssentialsPluginTemplateFactoryLogicDevice : EssentialsPluginDeviceFactory<EssentialsPluginTemplateLogicDevice>
     {
 		/// <summary>
 		/// Plugin device factory constructor
@@ -109,7 +109,7 @@ namespace EssentialsPluginTemplate
 		/// TypeNames = new List<string>() { "SamsungMdc", "SamsungMdcDisplay" };
         /// </code>
 		/// </example>
-        public EssentialsPluginFactoryLogicDeviceTemplate()
+        public EssentialsPluginTemplateFactoryLogicDevice()
         {
             // Set the minimum Essentials Framework Version
 			// TODO [ ] Update the Essentials minimum framework version which this plugin has been tested against
@@ -136,7 +136,7 @@ namespace EssentialsPluginTemplate
             Debug.Console(1, "[{0}] Factory Attempting to create new device from type: {1}", dc.Key, dc.Type);
 
             // get the plugin device properties configuration object & check for null 
-            var propertiesConfig = dc.Properties.ToObject<EssentialsPluginConfigObjectTemplate>();
+            var propertiesConfig = dc.Properties.ToObject<EssentialsPluginTemplateConfigObject>();
             if (propertiesConfig == null)
             {
                 Debug.Console(0, "[{0}] Factory: failed to read properties config for {1}", dc.Key, dc.Name);
@@ -166,7 +166,7 @@ namespace EssentialsPluginTemplate
     /// <example>
     /// "EssentialsPluginFactoryTemplate" renamed to "MyCrestronDeviceFactory"
     /// </example>
-    public class EssentialsPluginFactoryCrestronDeviceTemplate : EssentialsPluginDeviceFactory<EssentialsPluginTemplateCrestronDevice>
+    public class EssentialsPluginTemplateFactoryCrestronDevice : EssentialsPluginDeviceFactory<EssentialsPluginTemplateCrestronDevice>
     {
         /// <summary>
         /// Plugin device factory constructor
@@ -184,7 +184,7 @@ namespace EssentialsPluginTemplate
         /// TypeNames = new List<string>() { "SamsungMdc", "SamsungMdcDisplay" };
         /// </code>
         /// </example>
-        public EssentialsPluginFactoryCrestronDeviceTemplate()
+        public EssentialsPluginTemplateFactoryCrestronDevice()
         {
             // Set the minimum Essentials Framework Version
             // TODO [ ] Update the Essentials minimum framework version which this plugin has been tested against
@@ -211,7 +211,7 @@ namespace EssentialsPluginTemplate
             Debug.Console(1, "[{0}] Factory Attempting to create new device from type: {1}", dc.Key, dc.Type);
 
             // get the plugin device properties configuration object & check for null 
-            var propertiesConfig = dc.Properties.ToObject<EssentialsPluginConfigObjectTemplate>();
+            var propertiesConfig = dc.Properties.ToObject<EssentialsPluginTemplateConfigObject>();
             if (propertiesConfig == null)
             {
                 Debug.Console(0, "[{0}] Factory: failed to read properties config for {1}", dc.Key, dc.Name);

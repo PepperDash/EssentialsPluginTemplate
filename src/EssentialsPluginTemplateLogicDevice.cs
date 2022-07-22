@@ -1,8 +1,4 @@
-﻿// For Basic SIMPL# Classes
-// For Basic SIMPL#Pro classes
-
-using Crestron.SimplSharpPro.DeviceSupport;
-using Crestron.SimplSharpPro;
+﻿using Crestron.SimplSharpPro.DeviceSupport;
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
@@ -10,44 +6,36 @@ using PepperDash.Essentials.Core.Bridges;
 namespace EssentialsPluginTemplate
 {
 	/// <summary>
-	/// Plugin device
+	/// Plugin device template for logic devices that don't communicate outside the program
 	/// </summary>
 	/// <remarks>
 	/// Rename the class to match the device plugin being developed.
 	/// </remarks>
 	/// <example>
-	/// "EssentialsPluginDeviceTemplate" renamed to "SamsungMdcDevice"
+    /// "EssentialsPluginTemplateLogicDevice" renamed to "SamsungMdcDevice"
 	/// </example>
-	public class EssentialsPluginTemplateCrestronDevice : CrestronGenericBridgeableBaseDevice
+	public class EssentialsPluginTemplateLogicDevice : EssentialsBridgeableDevice
     {
         /// <summary>
         /// It is often desirable to store the config
         /// </summary>
-        private EssentialsPluginConfigObjectTemplate _config;
+        private EssentialsPluginTemplateConfigObject _config;
 
-
-        #region Constructor for Devices without IBasicCommunication.  Remove if not needed
         /// <summary>
-        /// Plugin device constructor for Crestron devices
+        /// Plugin device constructor
         /// </summary>
         /// <param name="key"></param>
         /// <param name="name"></param>
         /// <param name="config"></param>
-        /// <param name="hardware"></param>
-        public EssentialsPluginTemplateCrestronDevice(string key, string name, EssentialsPluginConfigObjectTemplate config, GenericBase hardware)
-            : base(key, name, hardware)
+        public EssentialsPluginTemplateLogicDevice(string key, string name, EssentialsPluginTemplateConfigObject config)
+            : base(key, name)
         {
             Debug.Console(0, this, "Constructing new {0} instance", name);
-
-            // The base class takes care of registering the hardware device for you
 
             // TODO [ ] Update the constructor as needed for the plugin device being developed
 
             _config = config;
         }
-
-        #endregion
-
 
         #region Overrides of EssentialsBridgeableDevice
 
@@ -60,7 +48,7 @@ namespace EssentialsPluginTemplate
         /// <param name="bridge"></param>
         public override void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
         {
-            var joinMap = new EssentialsPluginBridgeJoinMapTemplate(joinStart);
+            var joinMap = new EssentialsPluginTemplateBridgeJoinMap(joinStart);
 
             // This adds the join map to the collection on the bridge
             if (bridge != null)
@@ -90,7 +78,6 @@ namespace EssentialsPluginTemplate
                 trilist.SetString(joinMap.DeviceName.JoinNumber, Name);
             };
         }
-
 
         #endregion
 

@@ -1,4 +1,6 @@
-# Essentials Plugin Template (c) 2020
+![PepperDash Essentials Pluign Logo](/images/essentials-plugin-blue.png)
+
+# Essentials Plugin Template (c) 2023
 
 ## License
 

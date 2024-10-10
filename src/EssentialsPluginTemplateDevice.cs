@@ -1,7 +1,4 @@
-﻿// For Basic SIMPL# Classes
-// For Basic SIMPL#Pro classes
-
-using Crestron.SimplSharpPro.DeviceSupport;
+﻿using Crestron.SimplSharpPro.DeviceSupport;
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
@@ -21,9 +18,6 @@ namespace EssentialsPluginTemplate
 	/// </example>
 	public class EssentialsPluginTemplateDevice : EssentialsBridgeableDevice
     {
-        /// <summary>
-        /// It is often desirable to store the config
-        /// </summary>
         private EssentialsPluginTemplateConfigObject _config;
 
         /// <summary>
@@ -33,21 +27,14 @@ namespace EssentialsPluginTemplate
 
         #region IBasicCommunication Properties and Constructor.  Remove if not needed.
 
-        // TODO [ ] Add, modify, remove properties and fields as needed for the plugin being developed
 		private readonly IBasicCommunication _comms;
 		private readonly GenericCommunicationMonitor _commsMonitor;
-
-		// _comms gather for ASCII based API's
-		// TODO [ ] If not using an ASCII based API, delete the properties below
 		private readonly CommunicationGather _commsGather;
 
         /// <summary>
         /// Set this value to that of the delimiter used by the API (if applicable)
         /// </summary>
 		private const string CommsDelimiter = "\r";
-
-		// _comms byte buffer for HEX/byte based API's
-		// TODO [ ] If not using an HEX/byte based API, delete the properties below
 		private byte[] _commsByteBuffer = { };
 
 
@@ -103,11 +90,9 @@ namespace EssentialsPluginTemplate
 		{
 			Debug.Console(0, this, "Constructing new {0} instance", name);
 
-			// TODO [ ] Update the constructor as needed for the plugin device being developed
-
 			_config = config;
 
-            ReceiveQueue = new GenericQueue(key + "-rxqueue");  // If you need to set the thread priority, use one of the available overloaded constructors.
+            ReceiveQueue = new GenericQueue(key + "-rxqueue");
 
 			ConnectFeedback = new BoolFeedback(() => Connect);
 			OnlineFeedback = new BoolFeedback(() => _commsMonitor.IsOnline);
@@ -119,26 +104,15 @@ namespace EssentialsPluginTemplate
 			var socket = _comms as ISocketStatus;
 			if (socket != null)
 			{
-				// device comms is IP **ELSE** device comms is RS232
 				socket.ConnectionChange += socket_ConnectionChange;
 				Connect = true;
             }
 
             #region Communication data event handlers.  Comment out any that don't apply to the API type
 
-            // Only one of the below handlers should be necessary.  
-
-            // _comms gather for any API that has a defined delimiter
-			// TODO [ ] If not using an ASCII based API, remove the line below
 			_commsGather = new CommunicationGather(_comms, CommsDelimiter);
 			_commsGather.LineReceived += Handle_LineRecieved;
-
-			// _comms byte buffer for HEX/byte based API's with no delimiter
-            // TODO [ ] If not using an HEX/byte based API, remove the line below
 			_comms.BytesReceived += Handle_BytesReceived;
-
-            // _comms byte buffer for HEX/byte based API's with no delimiter
-            // TODO [ ] If not using an HEX/byte based API, remove the line below
             _comms.TextReceived += Handle_TextReceived;
 
             #endregion
@@ -154,26 +128,18 @@ namespace EssentialsPluginTemplate
 				StatusFeedback.FireUpdate();
 		}
 
-		// TODO [ ] If not using an API with a delimeter, delete the method below
 		private void Handle_LineRecieved(object sender, GenericCommMethodReceiveTextArgs args)
 		{
-			// TODO [ ] Implement method 
-			
-            // Enqueues the message to be processed in a dedicated thread, but the specified method
             ReceiveQueue.Enqueue(new ProcessStringMessage(args.Text, ProcessFeedbackMessage));
 		}
 
-        // TODO [ ] If not using an HEX/byte based API with no delimeter,  delete the method below
 		private void Handle_BytesReceived(object sender, GenericCommMethodReceiveBytesArgs args)
 		{
-			// TODO [ ] Implement method 
 			throw new System.NotImplementedException();
 		}
 
-        // TODO [ ] If not using an ASCII based API with no delimeter, delete the method below
         void Handle_TextReceived(object sender, GenericCommMethodReceiveTextArgs e)
         {
-            // TODO [ ] Implement method 
             throw new System.NotImplementedException();
         }
 
@@ -183,26 +149,23 @@ namespace EssentialsPluginTemplate
         /// <param name="message"></param>
         void ProcessFeedbackMessage(string message)
         {
-
+            throw new System.NotImplementedException();
         }
 
-
-		// TODO [ ] If not using an ACII based API, delete the properties below
-		/// <summary>
-		/// Sends text to the device plugin comms
-		/// </summary>
-		/// <remarks>
-		/// Can be used to test commands with the device plugin using the DEVPROPS and DEVJSON console commands
-		/// </remarks>
-		/// <param name="text">Command to be sent</param>		
-		public void SendText(string text)
+        /// <summary>
+        /// Sends text to the device plugin comms
+        /// </summary>
+        /// <remarks>
+        /// Can be used to test commands with the device plugin using the DEVPROPS and DEVJSON console commands
+        /// </remarks>
+        /// <param name="text">Command to be sent</param>		
+        public void SendText(string text)
 		{
 			if (string.IsNullOrEmpty(text)) return;
 
 			_comms.SendText($"{text}{CommsDelimiter}");
 		}
 
-		// TODO [ ] If not using an HEX/byte based API, delete the properties below
 		/// <summary>
 		/// Sends bytes to the device plugin comms
 		/// </summary>
@@ -225,8 +188,6 @@ namespace EssentialsPluginTemplate
 		/// </remarks>
 		public void Poll()
 		{
-			// TODO [ ] Update Poll method as needed for the plugin being developed
-            // Example: SendText("getstatus");
 			throw new System.NotImplementedException();
         }
 
@@ -246,7 +207,6 @@ namespace EssentialsPluginTemplate
         {
             var joinMap = new EssentialsPluginTemplateBridgeJoinMap(joinStart);
 
-            // This adds the join map to the collection on the bridge
             if (bridge != null)
             {
                 bridge.AddJoinMap(Key, joinMap);
@@ -262,9 +222,7 @@ namespace EssentialsPluginTemplate
             Debug.Console(1, "Linking to Trilist '{0}'", trilist.ID.ToString("X"));
             Debug.Console(0, "Linking to Bridge Type {0}", GetType().Name);
 
-            // TODO [ ] Implement bridge links as needed
 
-            // links to bridge
             trilist.SetString(joinMap.DeviceName.JoinNumber, Name);
 
             trilist.SetBoolSigAction(joinMap.Connect.JoinNumber, sig => Connect = sig);
@@ -286,7 +244,6 @@ namespace EssentialsPluginTemplate
 
         private void UpdateFeedbacks()
         {
-            // TODO [ ] Update as needed for the plugin being developed
             ConnectFeedback.FireUpdate();
             OnlineFeedback.FireUpdate();
             StatusFeedback.FireUpdate();

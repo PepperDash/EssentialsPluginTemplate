@@ -57,4 +57,4 @@ In the solution folder is a file named "PDT.EssentialsPluginTemplate.nuspec"
 
 There is no longer a requirement to adjust workflow files for nuget generation for private and public repositories.  This is now handled automatically in the workflow.
 
-__If you do not make these changes to the nuspec file, the project will not generate a nuget package__
+__If you do not make these changes to the nuspec file, the project will not generate a nuget package__  

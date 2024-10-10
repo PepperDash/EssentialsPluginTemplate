@@ -33,4 +33,8 @@
 	<ItemGroup>
 		<None Remove="PDT.EssentialsPluginTemplate.projectinfo" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="PepperDashEssentials" Version="2.0.0-beta-2559" />
+	</ItemGroup>
 </Project>

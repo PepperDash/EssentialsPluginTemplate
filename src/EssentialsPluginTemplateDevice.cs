@@ -199,7 +199,7 @@ namespace EssentialsPluginTemplate
 		{
 			if (string.IsNullOrEmpty(text)) return;
 
-			_comms.SendText(string.Format("{0}{1}", text, CommsDelimiter));
+			_comms.SendText($"{text}{CommsDelimiter}");
 		}
 
 		// TODO [ ] If not using an HEX/byte based API, delete the properties below

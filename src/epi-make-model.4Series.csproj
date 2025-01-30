@@ -4,12 +4,12 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
-		<RootNamespace>PDT.EssentialsPluginTemplate.EPI</RootNamespace>
+		<RootNamespace>PepperDash.Essentials.Plugin</RootNamespace>
 		<Deterministic>false</Deterministic>
-		<AssemblyTitle>PDT.EssentialsPluginTemplate.EPI</AssemblyTitle>
+		<AssemblyTitle>PepperDash.Essentials.Plugin.Make.Model</AssemblyTitle>
 		<Company>PepperDash Technologies</Company>
 		<Description>This software is a template for a PepperDash Essentials Plugin.</Description>
-		<Copyright>Copyright 2024</Copyright>
+		<Copyright>Copyright 2025</Copyright>
 		<Version>1.0.0-local</Version>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<InformationalVersion>$(Version)</InformationalVersion>
@@ -31,10 +31,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Remove="PDT.EssentialsPluginTemplate.projectinfo" />
-	</ItemGroup>
+    <None Remove="epi-make-model.projectinfo" />
+  </ItemGroup>
 
-	<ItemGroup>
-	  <PackageReference Include="PepperDashEssentials" Version="2.0.0-beta-2559" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="PepperDashEssentials" Version="2.0.0-hotfix-2613" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="../output\epi-make-model.4Series.1.0.0-local.cplz" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="../output\epi-make-model.4Series.1.0.0-local.cplz" />
+  </ItemGroup>
 </Project>

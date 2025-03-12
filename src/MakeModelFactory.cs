@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
+using Crestron.SimplSharpPro.UI;
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
-using Crestron.SimplSharpPro.UI;
 
-namespace EssentialsPluginTemplate
+namespace PepperDash.Essentials.Plugin
 {
 	/// <summary>
 	/// Plugin device factory for devices that use IBasicCommunication

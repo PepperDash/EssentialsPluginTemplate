@@ -3,7 +3,7 @@ using PepperDash.Core;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
 
-namespace EssentialsPluginTemplate
+namespace PepperDash.Essentials.Plugin
 {
 	/// <summary>
 	/// Plugin device template for logic devices that don't communicate outside the program

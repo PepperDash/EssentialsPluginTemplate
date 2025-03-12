@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using PepperDash.Essentials.Core;
 
-namespace EssentialsPluginTemplate
+namespace PepperDash.Essentials.Plugin
 {
 	/// <summary>
 	/// Plugin device configuration object

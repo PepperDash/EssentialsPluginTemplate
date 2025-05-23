@@ -58,3 +58,74 @@ In the solution folder is a file named "PDT.EssentialsPluginTemplate.nuspec"
 There is no longer a requirement to adjust workflow files for nuget generation for private and public repositories.  This is now handled automatically in the workflow.
 
 __If you do not make these changes to the nuspec file, the project will not generate a nuget package__
+<!-- START Minimum Essentials Framework Versions -->
+### Minimum Essentials Framework Versions
+
+- 1.6.4
+<!-- END Minimum Essentials Framework Versions -->
+<!-- START Config Example -->
+### Config Example
+
+```json
+{
+    "key": "GeneratedKey",
+    "uid": 1,
+    "name": "GeneratedName",
+    "type": "examplePluginCrestronDevice",
+    "group": "Group",
+    "properties": {
+        "control": "SampleValue",
+        "pollTimeMs": 0,
+        "warningTimeoutMs": 0,
+        "errorTimeoutMs": 0,
+        "DeviceDictionary": {
+            "SampleString": {
+                "name": "SampleString",
+                "value": "SampleValue"
+            }
+        }
+    }
+}
+```
+<!-- END Config Example -->
+<!-- START Supported Types -->
+### Supported Types
+
+- examplePluginCrestronDevice
+- examplePluginLogicDevice
+- examplePluginDevice
+<!-- END Supported Types -->
+<!-- START Join Maps -->
+
+<!-- END Join Maps -->
+<!-- START Interfaces Implemented -->
+
+<!-- END Interfaces Implemented -->
+<!-- START Base Classes -->
+### Base Classes
+
+- EssentialsBridgeableDevice
+- JoinMapBaseAdvanced
+- CrestronGenericBridgeableBaseDevice
+<!-- END Base Classes -->
+<!-- START Public Methods -->
+### Public Methods
+
+- public void SendText(string text)
+- public void SendBytes(byte[] bytes)
+- public void Poll()
+<!-- END Public Methods -->
+<!-- START Bool Feedbacks -->
+### Bool Feedbacks
+
+- ConnectFeedback
+- OnlineFeedback
+<!-- END Bool Feedbacks -->
+<!-- START Int Feedbacks -->
+### Int Feedbacks
+
+- StatusFeedback
+<!-- END Int Feedbacks -->
+<!-- START String Feedbacks -->
+
+<!-- END String Feedbacks -->

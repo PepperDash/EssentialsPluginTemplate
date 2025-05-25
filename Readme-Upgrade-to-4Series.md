@@ -88,7 +88,9 @@
   - Usage/setup instructions
   - Example SIMPL Windows bridge joinmap
   - Example device communication structure/properties
+- [ ] EPI tested against full release Essentials version.
 - [ ] EPI tested by another developer.
+- [ ] Full release of EPI.
 
 ---
 

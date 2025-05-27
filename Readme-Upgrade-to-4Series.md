@@ -57,6 +57,19 @@
 
 10. **Clean Up:**
     - Delete old Visual Studio 2008 files: `.sln`, `.suo`, `.nuspec`, `.csproj`, `.csproj.user`, `.projectinfo`.
+    - Ensure file structure matches below example:
+```
+  ├── src/
+  │   ├── Directory.Build.props
+  │   ├── Directory.Build.tagets
+  │   ├── *.3Series.csproj
+  │   └── *.4Series.csproj
+  ├── .releaserc.json
+  ├── *.3Series.sln
+  ├── *.4Series.sln
+  ├── LICENSE.md
+  └── README.md
+```
 
 11. **Rename Solution/Project** as needed.  
 

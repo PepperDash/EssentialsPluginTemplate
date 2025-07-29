@@ -69,7 +69,7 @@ namespace PepperDash.Essentials.Plugin
 
             var controlConfig = CommFactory.GetControlPropertiesConfig(dc);
 
-            if (controlConfig == null)
+            if (controlConfig != null)
             {
                 var myTouchpanel = new Tsw760(controlConfig.IpIdInt, Global.ControlSystem);
 

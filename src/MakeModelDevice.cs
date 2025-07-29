@@ -3,6 +3,7 @@
 
 using Crestron.SimplSharpPro.DeviceSupport;
 using PepperDash.Core;
+using PepperDash.Core.Logging;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
 using PepperDash.Essentials.Core.Queues;
@@ -18,36 +19,36 @@ namespace PepperDash.Essentials.Plugin
 	/// <example>
 	/// "EssentialsPluginDeviceTemplate" renamed to "SamsungMdcDevice"
 	/// </example>
-	public class EssentialsPluginTemplateDevice : EssentialsBridgeableDevice
-    {
-        /// <summary>
-        /// It is often desirable to store the config
-        /// </summary>
-        private EssentialsPluginTemplateConfigObject _config;
+	public class MakeModelDevice : EssentialsBridgeableDevice
+	{
+		/// <summary>
+		/// It is often desirable to store the config
+		/// </summary>
+		private readonly MakeModelConfig config;
 
-        /// <summary>
-        /// Provides a queue and dedicated worker thread for processing feedback messages from a device.
-        /// </summary>
-        private GenericQueue ReceiveQueue;
+		/// <summary>
+		/// Provides a queue and dedicated worker thread for processing feedback messages from a device.
+		/// </summary>
+		private readonly GenericQueue receiveQueue;
 
-        #region IBasicCommunication Properties and Constructor.  Remove if not needed.
+		#region IBasicCommunication Properties and Constructor.  Remove if not needed.
 
-        // TODO [ ] Add, modify, remove properties and fields as needed for the plugin being developed
-		private readonly IBasicCommunication _comms;
-		private readonly GenericCommunicationMonitor _commsMonitor;
+		// TODO [ ] Add, modify, remove properties and fields as needed for the plugin being developed
+		private readonly IBasicCommunication comms;
+		private readonly GenericCommunicationMonitor commsMonitor;
 
-		// _comms gather for ASCII based API's
+		// comms gather for ASCII based API's
 		// TODO [ ] If not using an ASCII based API, delete the properties below
-		private readonly CommunicationGather _commsGather;
+		private readonly CommunicationGather commsGather;
 
-        /// <summary>
-        /// Set this value to that of the delimiter used by the API (if applicable)
-        /// </summary>
-		private const string CommsDelimiter = "\r";
+		/// <summary>
+		/// Set this value to that of the delimiter used by the API (if applicable)
+		/// </summary>
+		private const string commsDelimiter = "\r";
 
-		// _comms byte buffer for HEX/byte based API's
+		// comms byte buffer for HEX/byte based API's
 		// TODO [ ] If not using an HEX/byte based API, delete the properties below
-		private byte[] _commsByteBuffer = { };
+		private readonly byte[] commsByteBuffer = { };
 
 
 
@@ -55,22 +56,22 @@ namespace PepperDash.Essentials.Plugin
 		/// Connects/disconnects the comms of the plugin device
 		/// </summary>
 		/// <remarks>
-		/// triggers the _comms.Connect/Disconnect as well as thee comms monitor start/stop
+		/// triggers the comms.Connect/Disconnect as well as thee comms monitor start/stop
 		/// </remarks>
 		public bool Connect
 		{
-			get { return _comms.IsConnected; }
+			get { return comms.IsConnected; }
 			set
 			{
 				if (value)
 				{
-					_comms.Connect();
-					_commsMonitor.Start();
+					comms.Connect();
+					commsMonitor.Start();
 				}
 				else
 				{
-					_comms.Disconnect();
-					_commsMonitor.Stop();
+					comms.Disconnect();
+					commsMonitor.Stop();
 				}
 			}
 		}
@@ -97,93 +98,91 @@ namespace PepperDash.Essentials.Plugin
 		/// <param name="name"></param>
 		/// <param name="config"></param>
 		/// <param name="comms"></param>
-        public EssentialsPluginTemplateDevice(string key, string name, EssentialsPluginTemplateConfigObject config, IBasicCommunication comms)
-			: base(key, name)
+		public MakeModelDevice(string key, string name, MakeModelConfig config, IBasicCommunication comms)
+	: base(key, name)
 		{
-			Debug.Console(0, this, "Constructing new {0} instance", name);
+			this.LogInformation("Constructing new {0} instance", name);
 
 			// TODO [ ] Update the constructor as needed for the plugin device being developed
 
-			_config = config;
+			this.config = config;
 
-            ReceiveQueue = new GenericQueue(key + "-rxqueue");  // If you need to set the thread priority, use one of the available overloaded constructors.
+			receiveQueue = new GenericQueue(key + "-rxqueue");  // If you need to set the thread priority, use one of the available overloaded constructors.
 
-			ConnectFeedback = new BoolFeedback(() => Connect);
-			OnlineFeedback = new BoolFeedback(() => _commsMonitor.IsOnline);
-			StatusFeedback = new IntFeedback(() => (int)_commsMonitor.Status);
+			ConnectFeedback = new BoolFeedback("connect", () => Connect);
+			OnlineFeedback = new BoolFeedback("online", () => commsMonitor.IsOnline);
+			StatusFeedback = new IntFeedback("status", () => (int)commsMonitor.Status);
 
-			_comms = comms;
-			_commsMonitor = new GenericCommunicationMonitor(this, _comms, _config.PollTimeMs, _config.WarningTimeoutMs, _config.ErrorTimeoutMs, Poll);
+			this.comms = comms;
+			commsMonitor = new GenericCommunicationMonitor(this, this.comms, this.config.PollTimeMs, this.config.WarningTimeoutMs, this.config.ErrorTimeoutMs, Poll);
 
-			var socket = _comms as ISocketStatus;
+			var socket = this.comms as ISocketStatus;
 			if (socket != null)
 			{
 				// device comms is IP **ELSE** device comms is RS232
 				socket.ConnectionChange += socket_ConnectionChange;
 				Connect = true;
-            }
+			}
 
-            #region Communication data event handlers.  Comment out any that don't apply to the API type
+			#region Communication data event handlers.  Comment out any that don't apply to the API type
 
-            // Only one of the below handlers should be necessary.  
+			// Only one of the below handlers should be necessary.  
 
-            // _comms gather for any API that has a defined delimiter
+			// comms gather for any API that has a defined delimiter
 			// TODO [ ] If not using an ASCII based API, remove the line below
-			_commsGather = new CommunicationGather(_comms, CommsDelimiter);
-			_commsGather.LineReceived += Handle_LineRecieved;
+			commsGather = new CommunicationGather(this.comms, commsDelimiter);
+			commsGather.LineReceived += Handle_LineRecieved;
 
-			// _comms byte buffer for HEX/byte based API's with no delimiter
-            // TODO [ ] If not using an HEX/byte based API, remove the line below
-			_comms.BytesReceived += Handle_BytesReceived;
+			// comms byte buffer for HEX/byte based API's with no delimiter
+			// TODO [ ] If not using an HEX/byte based API, remove the line below
+			this.comms.BytesReceived += Handle_BytesReceived;
 
-            // _comms byte buffer for HEX/byte based API's with no delimiter
-            // TODO [ ] If not using an HEX/byte based API, remove the line below
-            _comms.TextReceived += Handle_TextReceived;
+			// comms byte buffer for HEX/byte based API's with no delimiter
+			// TODO [ ] If not using an HEX/byte based API, remove the line below
+			this.comms.TextReceived += Handle_TextReceived;
 
-            #endregion
-        }
+			#endregion
+		}
 
 
 		private void socket_ConnectionChange(object sender, GenericSocketStatusChageEventArgs args)
 		{
-			if (ConnectFeedback != null)
-				ConnectFeedback.FireUpdate();
+			ConnectFeedback?.FireUpdate();
 
-			if (StatusFeedback != null)
-				StatusFeedback.FireUpdate();
+			StatusFeedback?.FireUpdate();
 		}
 
 		// TODO [ ] If not using an API with a delimeter, delete the method below
 		private void Handle_LineRecieved(object sender, GenericCommMethodReceiveTextArgs args)
 		{
 			// TODO [ ] Implement method 
-			
-            // Enqueues the message to be processed in a dedicated thread, but the specified method
-            ReceiveQueue.Enqueue(new ProcessStringMessage(args.Text, ProcessFeedbackMessage));
+
+			// Enqueues the message to be processed in a dedicated thread, but the specified method
+			receiveQueue.Enqueue(new ProcessStringMessage(args.Text, ProcessFeedbackMessage));
 		}
 
-        // TODO [ ] If not using an HEX/byte based API with no delimeter,  delete the method below
+		// TODO [ ] If not using an HEX/byte based API with no delimeter,  delete the method below
 		private void Handle_BytesReceived(object sender, GenericCommMethodReceiveBytesArgs args)
 		{
 			// TODO [ ] Implement method 
 			throw new System.NotImplementedException();
 		}
 
-        // TODO [ ] If not using an ASCII based API with no delimeter, delete the method below
-        void Handle_TextReceived(object sender, GenericCommMethodReceiveTextArgs e)
-        {
-            // TODO [ ] Implement method 
-            throw new System.NotImplementedException();
-        }
+		// TODO [ ] If not using an ASCII based API with no delimeter, delete the method below
+		void Handle_TextReceived(object sender, GenericCommMethodReceiveTextArgs e)
+		{
+			// TODO [ ] Implement method 
+			throw new System.NotImplementedException();
+		}
 
-        /// <summary>
-        /// This method should perform any necessary parsing of feedback messages from the device
-        /// </summary>
-        /// <param name="message"></param>
-        void ProcessFeedbackMessage(string message)
-        {
+		/// <summary>
+		/// This method should perform any necessary parsing of feedback messages from the device
+		/// </summary>
+		/// <param name="message"></param>
+		void ProcessFeedbackMessage(string message)
+		{
 
-        }
+		}
 
 
 		// TODO [ ] If not using an ACII based API, delete the properties below
@@ -198,7 +197,7 @@ namespace PepperDash.Essentials.Plugin
 		{
 			if (string.IsNullOrEmpty(text)) return;
 
-			_comms.SendText(string.Format("{0}{1}", text, CommsDelimiter));
+			comms.SendText(string.Format("{0}{1}", text, commsDelimiter));
 		}
 
 		// TODO [ ] If not using an HEX/byte based API, delete the properties below
@@ -213,7 +212,7 @@ namespace PepperDash.Essentials.Plugin
 		{
 			if (bytes == null) return;
 
-			_comms.SendBytes(bytes);
+			comms.SendBytes(bytes);
 		}
 
 		/// <summary>
@@ -225,74 +224,71 @@ namespace PepperDash.Essentials.Plugin
 		public void Poll()
 		{
 			// TODO [ ] Update Poll method as needed for the plugin being developed
-            // Example: SendText("getstatus");
+			// Example: SendText("getstatus");
 			throw new System.NotImplementedException();
-        }
+		}
 
-        #endregion
+		#endregion
 
 
-        #region Overrides of EssentialsBridgeableDevice
+		#region Overrides of EssentialsBridgeableDevice
 
-        /// <summary>
-        /// Links the plugin device to the EISC bridge
-        /// </summary>
-        /// <param name="trilist"></param>
-        /// <param name="joinStart"></param>
-        /// <param name="joinMapKey"></param>
-        /// <param name="bridge"></param>
-        public override void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
-        {
-            var joinMap = new EssentialsPluginTemplateBridgeJoinMap(joinStart);
+		/// <summary>
+		/// Links the plugin device to the EISC bridge
+		/// </summary>
+		/// <param name="trilist"></param>
+		/// <param name="joinStart"></param>
+		/// <param name="joinMapKey"></param>
+		/// <param name="bridge"></param>
+		public override void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
+		{
+			var joinMap = new EssentialsPluginTemplateBridgeJoinMap(joinStart);
 
-            // This adds the join map to the collection on the bridge
-            if (bridge != null)
-            {
-                bridge.AddJoinMap(Key, joinMap);
-            }
+			// This adds the join map to the collection on the bridge
+			bridge?.AddJoinMap(Key, joinMap);
 
-            var customJoins = JoinMapHelper.TryGetJoinMapAdvancedForDevice(joinMapKey);
+			var customJoins = JoinMapHelper.TryGetJoinMapAdvancedForDevice(joinMapKey);
 
-            if (customJoins != null)
-            {
-                joinMap.SetCustomJoinData(customJoins);
-            }
+			if (customJoins != null)
+			{
+				joinMap.SetCustomJoinData(customJoins);
+			}
 
-            Debug.Console(1, "Linking to Trilist '{0}'", trilist.ID.ToString("X"));
-            Debug.Console(0, "Linking to Bridge Type {0}", GetType().Name);
+			this.LogDebug("Linking to Trilist {id}", trilist.ID.ToString("X"));
+			this.LogInformation("Linking to Bridge Type {type}", GetType().Name);
 
-            // TODO [ ] Implement bridge links as needed
+			// TODO [ ] Implement bridge links as needed
 
-            // links to bridge
-            trilist.SetString(joinMap.DeviceName.JoinNumber, Name);
+			// links to bridge
+			trilist.SetString(joinMap.DeviceName.JoinNumber, Name);
 
-            trilist.SetBoolSigAction(joinMap.Connect.JoinNumber, sig => Connect = sig);
-            ConnectFeedback.LinkInputSig(trilist.BooleanInput[joinMap.Connect.JoinNumber]);
+			trilist.SetBoolSigAction(joinMap.Connect.JoinNumber, sig => Connect = sig);
+			ConnectFeedback.LinkInputSig(trilist.BooleanInput[joinMap.Connect.JoinNumber]);
 
-            StatusFeedback.LinkInputSig(trilist.UShortInput[joinMap.Status.JoinNumber]);
-            OnlineFeedback.LinkInputSig(trilist.BooleanInput[joinMap.IsOnline.JoinNumber]);
+			StatusFeedback.LinkInputSig(trilist.UShortInput[joinMap.Status.JoinNumber]);
+			OnlineFeedback.LinkInputSig(trilist.BooleanInput[joinMap.IsOnline.JoinNumber]);
 
-            UpdateFeedbacks();
+			UpdateFeedbacks();
 
-            trilist.OnlineStatusChange += (o, a) =>
-            {
-                if (!a.DeviceOnLine) return;
+			trilist.OnlineStatusChange += (o, a) =>
+			{
+				if (!a.DeviceOnLine) return;
 
-                trilist.SetString(joinMap.DeviceName.JoinNumber, Name);
-                UpdateFeedbacks();
-            };
-        }
+				trilist.SetString(joinMap.DeviceName.JoinNumber, Name);
+				UpdateFeedbacks();
+			};
+		}
 
-        private void UpdateFeedbacks()
-        {
-            // TODO [ ] Update as needed for the plugin being developed
-            ConnectFeedback.FireUpdate();
-            OnlineFeedback.FireUpdate();
-            StatusFeedback.FireUpdate();
-        }
+		private void UpdateFeedbacks()
+		{
+			// TODO [ ] Update as needed for the plugin being developed
+			ConnectFeedback.FireUpdate();
+			OnlineFeedback.FireUpdate();
+			StatusFeedback.FireUpdate();
+		}
 
-        #endregion
+		#endregion
 
-    }
+	}
 }
 

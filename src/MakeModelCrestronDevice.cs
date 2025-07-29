@@ -3,27 +3,27 @@
 
 using Crestron.SimplSharpPro;
 using Crestron.SimplSharpPro.DeviceSupport;
-using PepperDash.Core;
+using PepperDash.Core.Logging;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
 
 namespace PepperDash.Essentials.Plugin
 {
-	/// <summary>
-	/// Plugin device
-	/// </summary>
-	/// <remarks>
-	/// Rename the class to match the device plugin being developed.
-	/// </remarks>
-	/// <example>
-	/// "EssentialsPluginDeviceTemplate" renamed to "SamsungMdcDevice"
-	/// </example>
-	public class EssentialsPluginTemplateCrestronDevice : CrestronGenericBridgeableBaseDevice
+    /// <summary>
+    /// Plugin device
+    /// </summary>
+    /// <remarks>
+    /// Rename the class to match the device plugin being developed.
+    /// </remarks>
+    /// <example>
+    /// "EssentialsPluginDeviceTemplate" renamed to "SamsungMdcDevice"
+    /// </example>
+    public class MakeModelCrestronDevice : CrestronGenericBridgeableBaseDevice
     {
         /// <summary>
         /// It is often desirable to store the config
         /// </summary>
-        private EssentialsPluginTemplateConfigObject _config;
+        private readonly MakeModelConfig config;
 
 
         #region Constructor for Devices without IBasicCommunication.  Remove if not needed
@@ -34,16 +34,16 @@ namespace PepperDash.Essentials.Plugin
         /// <param name="name"></param>
         /// <param name="config"></param>
         /// <param name="hardware"></param>
-        public EssentialsPluginTemplateCrestronDevice(string key, string name, EssentialsPluginTemplateConfigObject config, GenericBase hardware)
+        public MakeModelCrestronDevice(string key, string name, MakeModelConfig config, GenericBase hardware)
             : base(key, name, hardware)
         {
-            Debug.Console(0, this, "Constructing new {0} instance", name);
+            this.LogInformation("Constructing new {0} instance", name);
 
             // The base class takes care of registering the hardware device for you
 
             // TODO [ ] Update the constructor as needed for the plugin device being developed
 
-            _config = config;
+            this.config = config;
         }
 
         #endregion
@@ -63,10 +63,7 @@ namespace PepperDash.Essentials.Plugin
             var joinMap = new EssentialsPluginTemplateBridgeJoinMap(joinStart);
 
             // This adds the join map to the collection on the bridge
-            if (bridge != null)
-            {
-                bridge.AddJoinMap(Key, joinMap);
-            }
+            bridge?.AddJoinMap(Key, joinMap);
 
             var customJoins = JoinMapHelper.TryGetJoinMapAdvancedForDevice(joinMapKey);
 
@@ -75,8 +72,8 @@ namespace PepperDash.Essentials.Plugin
                 joinMap.SetCustomJoinData(customJoins);
             }
 
-            Debug.Console(1, "Linking to Trilist '{0}'", trilist.ID.ToString("X"));
-            Debug.Console(0, "Linking to Bridge Type {0}", GetType().Name);
+            this.LogDebug("Linking to Trilist {id}", trilist.ID.ToString("X"));
+            this.LogInformation("Linking to Bridge Type {type}", GetType().Name);
 
             // TODO [ ] Implement bridge links as needed
 

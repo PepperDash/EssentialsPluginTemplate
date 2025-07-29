@@ -14,7 +14,7 @@ namespace PepperDash.Essentials.Plugin
 	/// "EssentialsPluginConfigObjectTemplate" renamed to "SamsungMdcConfig"
 	/// </example>
 	[ConfigSnippet("\"properties\":{\"control\":{}")]
-	public class EssentialsPluginTemplateConfigObject
+	public class MakeModelConfig
 	{
 		/// <summary>
 		/// JSON control object
@@ -27,7 +27,7 @@ namespace PepperDash.Essentials.Plugin
 		/// <example>
 		/// <code>
 		/// "control": {
-        ///		"method": "tcpIp",
+		///		"method": "tcpIp",
 		///		"controlPortDevKey": "processor",
 		///		"controlPortNumber": 1,
 		///		"comParams": {
@@ -139,7 +139,7 @@ namespace PepperDash.Essentials.Plugin
 		/// </code>
 		/// </example>
 		[JsonProperty("DeviceDictionary")]
-		public Dictionary<string, EssentialsPluginTemplateConfigObjectDictionary> DeviceDictionary { get; set; }
+		public Dictionary<string, MakeModelConfigDictionary> DeviceDictionary { get; set; }
 
 		/// <summary>
 		/// Constuctor
@@ -148,9 +148,9 @@ namespace PepperDash.Essentials.Plugin
 		/// If using a collection you must instantiate the collection in the constructor
 		/// to avoid exceptions when reading the configuration file 
 		/// </remarks>
-        public EssentialsPluginTemplateConfigObject()
+		public MakeModelConfig()
 		{
-			DeviceDictionary = new Dictionary<string, EssentialsPluginTemplateConfigObjectDictionary>();
+			DeviceDictionary = new Dictionary<string, MakeModelConfigDictionary>();
 		}
 	}
 
@@ -172,7 +172,7 @@ namespace PepperDash.Essentials.Plugin
 	/// }
 	/// </code>
 	/// </example>
-	public class EssentialsPluginTemplateConfigObjectDictionary
+	public class MakeModelConfigDictionary
 	{
 		/// <summary>
 		/// Serializes collection name property

@@ -1,6 +1,6 @@
 ![PepperDash Essentials Pluign Logo](/images/essentials-plugin-blue.png)
 
-# Essentials Plugin Template (c) 2023
+# Essentials Plugin Template (c) 2025
 
 ## License
 
@@ -8,14 +8,14 @@ Provided under MIT license
 
 ## Overview
 
-Fork this repo when creating a new plugin for Essentials. For more information about plugins, refer to the Essentials Wiki [Plugins](https://github.com/PepperDash/Essentials/wiki/Plugins) article.
+Fork this repo when creating a new plugin for Essentials. For more information about plugins, refer to the Essentials Wiki [Plugins](https://pepperdash.github.io/Essentials/docs/Plugins.html) article.
 
 This repo contains example classes for the three main categories of devices:
-* `EssentialsPluginTemplateDevice`: Used for most third party devices which require communication over a streaming mechanism such as a Com port, TCP/SSh/UDP socket, CEC, etc
-* `EssentialsPluginTemplateLogicDevice`:  Used for devices that contain logic, but don't require any communication with third parties outside the program
-* `EssentialsPluginTemplateCrestronDevice`:  Used for devices that represent a piece of Crestron hardware
+* `MakeModelDevice`: Used for most third party devices which require communication over a streaming mechanism such as a Com port, TCP/SSh/UDP socket, CEC, etc
+* `MakeModelLogicDevice`:  Used for devices that contain logic, but don't require any communication with third parties outside the program
+* `MakeModelCrestronDevice`:  Used for devices that represent a piece of Crestron hardware
 
-There are matching factory classes for each of the three categories of devices.  The `EssentialsPluginTemplateConfigObject` should be used as a template and modified for any of the categories of device.  Same goes for the `EssentialsPluginTemplateBridgeJoinMap`.
+There are matching factory classes for each of the three categories of devices.  The `MakeModelConfigObject` should be used as a template and modified for any of the categories of device.  Same goes for the `MakeModeleBridgeJoinMap`.
 
 This also illustrates how a plugin can contain multiple devices.
 
@@ -29,14 +29,7 @@ The [Essentials](https://github.com/PepperDash/Essentials) libraries are require
 
 ### Installing Dependencies
 
-To install dependencies once nuget.exe is installed, run the following command from the root directory of your repository:
-`nuget install .\packages.config -OutputDirectory .\packages -excludeVersion`.
-Alternatively, you can simply run the `GetPackages.bat` file.
-To verify that the packages installed correctly, open the plugin solution in your repo and make sure that all references are found, then try and build it.
-
-### Installing Different versions of PepperDash Core
-
-If you need a different version of PepperDash Core, use the command `nuget install .\packages.config -OutputDirectory .\packages -excludeVersion -Version {versionToGet}`. Omitting the `-Version` option will pull the version indicated in the packages.config file.
+Dependencies will be automatically installed when
 
 ### Instructions for Renaming Solution and Files
 
@@ -46,15 +39,10 @@ For renaming instructions in particular, see the XML `remarks` tags on class def
 
 ## Build Instructions (PepperDash Internal) 
 
-## Generating Nuget Package 
+## Generating Nuget Package
 
-In the solution folder is a file named "PDT.EssentialsPluginTemplate.nuspec" 
+A nuget package is automatically generated when the plugin is build. To modify the name and other details of the package, edit the following properties in the .csproj file:
 
-1. Rename the file to match your plugin solution name 
-2. Edit the file to include your project specifics including
-    1. <id>PepperDash.Essentials.Plugin.MakeModel</id> Convention is to use the prefix "PepperDash.Essentials.Plugin" and include the MakeModel of the device. 
-    2. <projectUrl>https://github.com/PepperDash/EssentialsPluginTemplate</projectUrl> Change to your url to the project repo
-
-There is no longer a requirement to adjust workflow files for nuget generation for private and public repositories.  This is now handled automatically in the workflow.
-
-__If you do not make these changes to the nuspec file, the project will not generate a nuget package__
+1. `PackageId` - This is the name that will be used to pull the package from Nuget once it's published
+2. `PackgeProjectUrl` - This should match the URL for the plugin repo
+3. `AssemblyTitle` - This is the dll file name that is will show on a processor when the plugin is loaded

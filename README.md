@@ -54,7 +54,7 @@ If the badges change, `README.md` is re-staged automatically so the update is pa
 ### Requirements
 
 * [.NET SDK](https://dotnet.microsoft.com/download) (provides `dotnet tool`)
-* Windows: the built-in Windows PowerShell 5.1 is used. macOS/Linux: [PowerShell 7 (`pwsh`)](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) must be on the `PATH`.
+* [PowerShell 7+ (`pwsh`)](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) on the `PATH` (Windows, macOS and Linux). Windows PowerShell 5.1 is not used.
 
 ### Setup
 
@@ -76,9 +76,7 @@ Verify with `git config core.hooksPath`, which should print `.husky`.
 
 * Commit as usual; the hook runs on every `git commit`.
 * Run it on demand: `dotnet husky run`
-* Check without modifying files (useful for CI):
-  * Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File .github/scripts/Update-ReadmeBadges.ps1 -Check`
-  * macOS/Linux: `pwsh -NoProfile -File .github/scripts/Update-ReadmeBadges.ps1 -Check`
+* Check without modifying files (useful for CI): `pwsh -NoProfile -File .github/scripts/Update-ReadmeBadges.ps1 -Check`
 * The hook refuses to run if `README.md`, the `.4Series.csproj`, or a `*Factory.cs` file has unstaged changes, so a partial commit never picks up unrelated edits. Stage or stash them and commit again.
 * Skip the hook for a single commit: `git commit --no-verify`
 * Skip the automatic install on restore: set the `HUSKY=0` environment variable. It is also skipped when `CI=true`.

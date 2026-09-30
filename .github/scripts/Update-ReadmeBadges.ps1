@@ -13,7 +13,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$root = Resolve-Path (Join-Path $PSScriptRoot '..\..')
+$root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $srcDir = Join-Path $root 'src'
 $readmePath = Join-Path $root 'README.md'
 $utf8 = New-Object System.Text.UTF8Encoding($false)

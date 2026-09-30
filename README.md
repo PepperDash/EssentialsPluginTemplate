@@ -76,7 +76,10 @@ Verify with `git config core.hooksPath`, which should print `.husky`.
 
 * Commit as usual; the hook runs on every `git commit`.
 * Run it on demand: `dotnet husky run`
-* Check without modifying files (useful for CI): `pwsh .github/scripts/Update-ReadmeBadges.ps1 -Check`
+* Check without modifying files (useful for CI):
+  * Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File .github/scripts/Update-ReadmeBadges.ps1 -Check`
+  * macOS/Linux: `pwsh -NoProfile -File .github/scripts/Update-ReadmeBadges.ps1 -Check`
+* The hook refuses to run if `README.md`, the `.4Series.csproj`, or a `*Factory.cs` file has unstaged changes, so a partial commit never picks up unrelated edits. Stage or stash them and commit again.
 * Skip the hook for a single commit: `git commit --no-verify`
 * Skip the automatic install on restore: set the `HUSKY=0` environment variable. It is also skipped when `CI=true`.
 

@@ -23,6 +23,16 @@ function Fail($message) {
   exit 1
 }
 
+# Staging README.md adds its whole working-tree copy, and badges are computed from working-tree
+# sources, so refuse to run when any of those inputs differ from the index.
+if ($Stage) {
+  $unstaged = @(git -C $root diff --name-only -- README.md 'src/*.4Series.csproj' 'src/*Factory.cs')
+  if ($LASTEXITCODE) { Fail 'git diff failed' }
+  if ($unstaged.Count -gt 0) {
+    Fail ("unstaged changes in badge inputs ($($unstaged -join ', ')); stage or stash them, then commit again")
+  }
+}
+
 # Target framework from the 4Series csproj
 $csprojFile = Get-ChildItem -Path $srcDir -Filter '*.4Series.csproj' | Select-Object -First 1
 if (-not $csprojFile) { Fail 'no *.4Series.csproj found in src/' }

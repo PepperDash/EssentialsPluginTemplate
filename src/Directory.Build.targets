@@ -17,4 +17,9 @@
   <Target Name="Clean CPLZ" AfterTargets="AfterClean" Condition="$(ProjectType) == 'ProgramLibrary'">
     <Delete Files="$(PackageOutputPath)\$(TargetName).$(Version).cplz"/>
   </Target>
+  <!-- Installs git hooks on restore; skipped in CI or with HUSKY=0 -->
+  <Target Name="InstallGitHooks" BeforeTargets="Restore;CollectPackageReferences" Condition="'$(HUSKY)' != '0' And '$(CI)' != 'true' And Exists('$(MSBuildThisFileDirectory)..\.git')">
+    <Exec Command="dotnet tool restore" WorkingDirectory="$(MSBuildThisFileDirectory).." StandardOutputImportance="Low" StandardErrorImportance="High" ContinueOnError="true" />
+    <Exec Command="dotnet husky install" WorkingDirectory="$(MSBuildThisFileDirectory).." StandardOutputImportance="Low" StandardErrorImportance="High" ContinueOnError="true" />
+  </Target>
 </Project>

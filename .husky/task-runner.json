@@ -1,0 +1,14 @@
+{
+   "$schema": "https://alirezanet.github.io/Husky.Net/schema.json",
+   "tasks": [
+      {
+         "name": "update-readme-badges",
+         "command": "pwsh",
+         "args": [ "-NoProfile", "-File", ".github/scripts/Update-ReadmeBadges.ps1", "-Stage" ],
+         "windows": {
+            "command": "powershell",
+            "args": [ "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", ".github/scripts/Update-ReadmeBadges.ps1", "-Stage" ]
+         }
+      }
+   ]
+}

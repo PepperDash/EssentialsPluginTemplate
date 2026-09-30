@@ -26,10 +26,12 @@ function Fail($message) {
 # Staging README.md adds its whole working-tree copy, and badges are computed from working-tree
 # sources, so refuse to run when any of those inputs differ from the index.
 if ($Stage) {
-  $unstaged = @(git -C $root diff --name-only -- README.md 'src/*.4Series.csproj' 'src/*Factory.cs')
-  if ($LASTEXITCODE) { Fail 'git diff failed' }
+  # Porcelain XY: a non-blank Y is a worktree change ('??' = untracked), which the index lacks.
+  $status = @(git -C $root status --porcelain --untracked-files=all -- README.md 'src/*.4Series.csproj' 'src/*Factory.cs')
+  if ($LASTEXITCODE) { Fail 'git status failed' }
+  $unstaged = @($status | Where-Object { $_ -match '^.[^ ]' })
   if ($unstaged.Count -gt 0) {
-    Fail ("unstaged changes in badge inputs ($($unstaged -join ', ')); stage or stash them, then commit again")
+    Fail ("unstaged or untracked badge inputs ($(($unstaged | ForEach-Object { $_.Substring(3) }) -join ', ')); stage or stash them, then commit again")
   }
 }
 
@@ -106,4 +108,7 @@ if ($Check) { Fail 'README.md badges are stale; run .github/scripts/Update-Readm
 [System.IO.File]::WriteAllText($readmePath, $updated, $utf8)
 Write-Host "badges: README.md updated ($($fw.Label) $($fw.Message), Essentials >= v$minVersion)"
 
-if ($Stage) { git -C $root add README.md }
+if ($Stage) {
+  git -C $root add README.md
+  if ($LASTEXITCODE) { Fail 'git add README.md failed' }
+}

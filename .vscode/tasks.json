@@ -5,6 +5,12 @@
       "label": "Install git hooks",
       "type": "shell",
       "command": "dotnet tool restore && dotnet husky install",
+      "options": {
+        "shell": {
+          "executable": "pwsh",
+          "args": ["-NoProfile", "-Command"]
+        }
+      },
       "presentation": {
         "reveal": "silent",
         "close": true

@@ -1,0 +1,29 @@
+# Normalize line endings to LF in the repository; checkout uses the platform default
+* text=auto
+
+# Source
+*.cs text diff=csharp
+*.csproj text
+*.props text
+*.targets text
+*.json text
+*.md text diff=markdown
+*.yml text
+*.yaml text
+*.ps1 text
+
+# Visual Studio requires CRLF
+*.sln text eol=crlf
+
+# Shell scripts and husky hooks run under /bin/sh; CRLF breaks the shebang
+*.sh text eol=lf
+.husky/** text eol=lf
+
+# Binary
+*.png binary
+*.jpg binary
+*.cpz binary
+*.cplz binary
+*.clz binary
+*.dll binary
+*.nupkg binary

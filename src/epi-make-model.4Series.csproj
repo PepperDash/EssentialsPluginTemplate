@@ -9,7 +9,7 @@
 		<AssemblyTitle>PepperDash.Essentials.Plugin.Make.Model</AssemblyTitle>
 		<Company>PepperDash Technology</Company>
 		<Description>This software is a template for a PepperDash Essentials Plugin.</Description>
-		<Copyright>Copyright 2025</Copyright>
+		<Copyright>Copyright 2026</Copyright>
 		<Version>1.0.0-local</Version>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<InformationalVersion>$(Version)</InformationalVersion>

@@ -1,5 +1,10 @@
 ![PepperDash Essentials Pluign Logo](/images/essentials-plugin-blue.png)
 
+![PepperDash Essentials](https://img.shields.io/badge/PepperDash%20Essentials-≥%20v2.12.1-blue)
+![.NET](https://img.shields.io/badge/.NET%20Framework-4.7.2-512BD4)
+![Crestron](https://img.shields.io/badge/Crestron-4--Series-lightgrey)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 # Essentials Plugin Template (c) 2025
 
 ## License
@@ -36,6 +41,49 @@ Dependencies will be automatically installed when
 See the Task List in Visual Studio for a guide on how to start using the template.  There is extensive inline documentation and examples as well.
 
 For renaming instructions in particular, see the XML `remarks` tags on class definitions
+
+## Git Hooks (Husky.Net)
+
+This repo uses [Husky.Net](https://alirezanet.github.io/Husky.Net/) to run a `pre-commit` hook. The hook runs `.github/scripts/Update-ReadmeBadges.ps1`, which keeps the `.NET` and `PepperDash Essentials` badges at the top of this README in sync with the project:
+
+* `.NET` badge - `TargetFramework` in `src/*.4Series.csproj`
+* `PepperDash Essentials` badge - the highest `MinimumEssentialsFrameworkVersion` in `src/*Factory.cs`
+
+If the badges change, `README.md` is re-staged automatically so the update is part of your commit. A warning is printed if the `PepperDashEssentials` package version in the csproj differs from `MinimumEssentialsFrameworkVersion`.
+
+### Requirements
+
+* [.NET SDK](https://dotnet.microsoft.com/download) (provides `dotnet tool`)
+* [PowerShell 7+ (`pwsh`)](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) on the `PATH` (Windows, macOS and Linux). Windows PowerShell 5.1 is not used.
+
+### Setup
+
+The hook is installed automatically the first time you do any of the following in a fresh clone:
+
+* Open the solution in Visual Studio, or run `dotnet restore` / `dotnet build`
+* Open the folder in VS Code and allow the "Install git hooks" automatic task
+
+To install it manually:
+
+```
+dotnet tool restore
+dotnet husky install
+```
+
+Verify with `git config core.hooksPath`, which should print `.husky`.
+
+### Usage
+
+* Commit as usual; the hook runs on every `git commit`.
+* Run it on demand: `dotnet husky run`
+* Check without modifying files (useful for CI): `pwsh -NoProfile -File .github/scripts/Update-ReadmeBadges.ps1 -Check`
+* The hook refuses to run if `README.md`, the `.4Series.csproj`, or a `*Factory.cs` file has unstaged or untracked changes, so a partial commit never picks up unrelated edits. Stage or stash them and commit again.
+* Skip the hook for a single commit: `git commit --no-verify`
+* Skip the automatic install on restore: set the `HUSKY=0` environment variable. It is also skipped when `CI=true`.
+
+### Renaming
+
+The script locates files by pattern (`*.4Series.csproj`, `*Factory.cs`), so renaming the project or factory classes does not require changes. Keep a `MinimumEssentialsFrameworkVersion = "x.y.z";` assignment in at least one factory, and keep the two badges in this README.
 
 ## Build Instructions (PepperDash Internal) 
 

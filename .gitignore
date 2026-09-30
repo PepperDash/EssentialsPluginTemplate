@@ -357,3 +357,6 @@ MigrationBackup/
 *.clz
 *.projectinfo
 *.suo
+
+# VS Code 
+*.code-workspace

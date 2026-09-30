@@ -19,6 +19,15 @@
         "runOn": "folderOpen"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "Update README docs",
+      "type": "shell",
+      "command": "pwsh -NoProfile -File .github/scripts/Update-ReadmeDocs.ps1",
+      "windows": {
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .github/scripts/Update-ReadmeDocs.ps1"
+      },
+      "problemMatcher": []
     }
   ]
 }

@@ -44,7 +44,7 @@ namespace PepperDash.Essentials.Plugin
 				Description = "Connect (Held)/Disconnect (Release) & corresponding feedback",
 				JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
 				JoinType = eJoinType.Digital
-			});		
+			});
 
 		#endregion
 
@@ -93,8 +93,8 @@ namespace PepperDash.Essentials.Plugin
 		/// Plugin device BridgeJoinMap constructor
 		/// </summary>
 		/// <param name="joinStart">This will be the join it starts on the EISC bridge</param>
-        public EssentialsPluginTemplateBridgeJoinMap(uint joinStart)
-            : base(joinStart, typeof(EssentialsPluginTemplateBridgeJoinMap))
+		public EssentialsPluginTemplateBridgeJoinMap(uint joinStart)
+			: base(joinStart, typeof(EssentialsPluginTemplateBridgeJoinMap))
 		{
 		}
 	}

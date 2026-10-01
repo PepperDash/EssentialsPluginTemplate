@@ -1,6 +1,6 @@
 ![PepperDash Essentials Pluign Logo](/images/essentials-plugin-blue.png)
 
-![PepperDash Essentials](https://img.shields.io/badge/PepperDash%20Essentials-≥%20v2.12.1-blue)
+![PepperDash Essentials](https://img.shields.io/badge/PepperDash%20Essentials-≥%20v2.42.4-blue)
 ![.NET](https://img.shields.io/badge/.NET%20Framework-4.7.2-512BD4)
 ![Crestron](https://img.shields.io/badge/Crestron-4--Series-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)

@@ -37,7 +37,7 @@ namespace PepperDash.Essentials.Plugin
         {
             // Set the minimum Essentials Framework Version
             // TODO [ ] Update the Essentials minimum framework version which this plugin has been tested against
-            MinimumEssentialsFrameworkVersion = "2.12.1";
+            MinimumEssentialsFrameworkVersion = "2.42.4";
 
             // In the constructor we initialize the list with the typenames that will build an instance of this device
             // TODO [ ] Update the TypeNames for the plugin being developed

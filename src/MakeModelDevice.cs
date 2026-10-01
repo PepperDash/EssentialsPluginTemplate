@@ -184,7 +184,6 @@ namespace PepperDash.Essentials.Plugin
 
 		}
 
-
 		// TODO [ ] If not using an ACII based API, delete the properties below
 		/// <summary>
 		/// Sends text to the device plugin comms
@@ -288,7 +287,6 @@ namespace PepperDash.Essentials.Plugin
 		}
 
 		#endregion
-
 	}
 }
 

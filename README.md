@@ -85,7 +85,7 @@ Every push runs `.github/workflows/EssentialsPlugins-builds-caller.yml`, which c
 The `.NET` and `PepperDash Essentials` badges at the top of this README are kept in sync by an MSBuild target in `src/Directory.Build.targets`, so no extra tools are needed:
 
 * `.NET` badge - `TargetFramework` of the plugin project
-* `PepperDash Essentials` badge - the highest `MinimumEssentialsFrameworkVersion` in the project's `*Factory.cs` files (subfolders included)
+* `PepperDash Essentials` badge - the highest `MinimumEssentialsFrameworkVersion = "x.y.z";` assignment in the project's C# files (subfolders included), so factories can be renamed freely (for example `SonyBraviaDeviceFactory`)
 
 Every local `dotnet build` (or Visual Studio build) rewrites the badges when they are stale; commit the `README.md` change with your code. The `PepperDashEssentials` `PackageReference` version in the csproj must be equal to or greater than `MinimumEssentialsFrameworkVersion` (a prerelease such as `2.13.0-beta` counts as lower than `2.13.0`); otherwise the build fails with `PDREADME002`.
 
@@ -132,35 +132,26 @@ Verify with `git config core.hooksPath`, which should print `.husky`.
 
 ### README Docs (Generated Plugin Documentation)
 
-The plugin's config example, supported types, join maps, feedbacks and public methods are generated into `<!-- START name -->` / `<!-- END name -->` sections under [Plugin Documentation](#plugin-documentation) at the end of this README. Generation runs locally on your current branch, so the result is committed with your changes (there is no CI job or separate branch, and it is not part of the pre-commit hook).
+The plugin's config example, supported types, join maps, feedbacks and public methods are generated into `<!-- START name -->` / `<!-- END name -->` sections under [Plugin Documentation](#plugin-documentation) at the end of this README. Generation is an MSBuild target (`UpdateReadmeDocs` in `src/Directory.Build.targets`, implemented in `build/ReadmeDocs.cs`) that you run on your branch, review, and commit with your changes. It needs only the .NET SDK and runs offline.
 
-#### Requirements
-
-* [Python 3](https://www.python.org/downloads/) on the `PATH` (`python3`, `python` or `py`)
-* PowerShell: Windows PowerShell 5.1 (built in) or [PowerShell 7 (`pwsh`)](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) on macOS/Linux
-* Internet access on first run (the script downloads `metadata.py` from [PepperDash/workflow-templates](https://github.com/PepperDash/workflow-templates))
+In CI (`CI=true`) the build regenerates the sections in memory and fails with `PDREADME005` if they differ from the committed README, so a release is never packaged with out-of-date docs. Skip that check with `-p:SkipReadmeDocsCheck=true`.
 
 #### Running the Update
-
-Run the commands from the repo root; the script always updates the repo root `README.md`.
 
 | Where | How |
 | --- | --- |
 | VS Code | `Terminal > Run Task...` > **Update README docs** |
-| macOS/Linux terminal | `pwsh -NoProfile -File .github/scripts/Update-ReadmeDocs.ps1` |
-| Windows terminal | `powershell -NoProfile -ExecutionPolicy Bypass -File .github\scripts\Update-ReadmeDocs.ps1` |
-| Copilot Chat | `/update-readme-docs` - runs the script, then reviews the generated sections against `src/` and cleans them up |
+| Terminal (repo root) | `dotnet msbuild -t:UpdateReadmeDocs` |
+| Check only, no changes | `dotnet build -p:ReadmeMode=Check` |
+| Copilot Chat | `/update-readme-docs` - runs the target, then reviews the generated sections against `src/` and cleans them up |
 
 Then review `git diff README.md` and commit the result with your changes.
 
-Options:
-
-* `-Ref <branch-or-tag>` - download `metadata.py` from a specific `workflow-templates` ref instead of `main`
-* `-ScriptPath <path>` - use a local copy of `metadata.py` (no download)
+The generator is a C# port of `metadata.py` from [PepperDash/workflow-templates](https://github.com/PepperDash/workflow-templates) (used by the older `update-readme` workflow) and produces the same sections, except that the output order no longer depends on the file system.
 
 #### Controlling the Output
 
-* The Config Example `type` is the first `TypeNames` entry of the first `*Factory.cs` (by file name), and the unused `uid` property is removed.
+* The Config Example `type` is the first `TypeNames` entry of the first C# file (by file name) that sets `TypeNames`, and the unused `uid` property is removed. Factories, join maps and config classes are found by their content, not their file or class names, so renaming them (for example to `SonyBraviaDeviceFactory`) needs no changes here.
 * Base Classes and Interfaces list the base classes and interfaces declared on the plugin's own device classes (factories and join maps are excluded). Each has its own section; Interfaces is empty when no device class declares one.
 * Sections the generator gets wrong (for example placeholder config values or a join map it can't find) can be edited by hand. Add `<!-- SKIP -->` on the line after the `<!-- START name -->` marker and later runs leave that section alone.
 * To hide a section that doesn't apply, keep its markers with only `<!-- SKIP -->` between them. Deleting the markers doesn't work; the generator adds them back.
@@ -174,10 +165,9 @@ Provided under the MIT license; see [LICENSE.md](LICENSE.md).
 The sections below are generated; see [README Docs](#readme-docs-generated-plugin-documentation).
 
 <!-- START Minimum Essentials Framework Versions -->
-<!-- SKIP -->
 ### Minimum Essentials Framework Versions
 
-- 2.12.1
+- 2.42.4
 <!-- END Minimum Essentials Framework Versions -->
 
 <!-- START Config Example -->
@@ -248,15 +238,15 @@ The sections below are generated; see [README Docs](#readme-docs-generated-plugi
 | 1 | R | Device Name |
 <!-- END Join Maps -->
 
-<!-- START Interfaces Implemented -->
-<!-- END Interfaces Implemented -->
-
 <!-- START Base Classes -->
 ### Base Classes
 
-- `CrestronGenericBridgeableBaseDevice`
-- `EssentialsBridgeableDevice`
+- CrestronGenericBridgeableBaseDevice
+- EssentialsBridgeableDevice
 <!-- END Base Classes -->
+
+<!-- START Interfaces Implemented -->
+<!-- END Interfaces Implemented -->
 
 <!-- START Public Methods -->
 ### Public Methods

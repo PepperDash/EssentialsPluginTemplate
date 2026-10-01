@@ -110,7 +110,7 @@ In Visual Studio, the Task List shows every remaining `TODO [ ]` item.
 ### Edit a generated section by hand
 
 1. Edit the content between the section's `<!-- START name -->` and `<!-- END name -->` markers.
-2. Add `<!-- SKIP -->` on the line after the `<!-- START name -->` marker so later runs leave the section alone.
+2. Add `<!-- SKIP -->` on the line after the `<!-- START name -->` marker so later runs leave the section alone. The Config Example is the exception: its `type` and `uid` are always updated (see [Generated documentation sections](#generated-documentation-sections)).
 
 To hide a section that does not apply, keep its markers with only `<!-- SKIP -->` between them. Deleting the markers does not work; the generator adds them back.
 
@@ -231,12 +231,12 @@ The README targets run only for projects with `ProjectType` `ProgramLibrary`, an
 | Minimum Essentials Framework Versions | Each distinct `MinimumEssentialsFrameworkVersion` value |
 | Config Example | The class whose name ends in `Config` or `ConfigObject` with the most properties. `type` is the first `TypeNames` entry of the first C# file (by file name) that sets `TypeNames`; the unused `uid` property is removed. |
 | Supported Types | Every `TypeNames` entry |
-| Join Maps | Classes deriving from `JoinMapBaseAdvanced`, in any file |
+| Join Maps | Classes deriving from `JoinMapBaseAdvanced`, in any file. Type (RW) is `R`, `W` or `R/W` from each join's `JoinCapabilities` |
 | Base Classes, Interfaces | Base classes and interfaces declared by the plugin's own classes, excluding factories and join maps |
 | Public Methods | Public methods in the project's C# files |
 | Bool, Int and String Feedbacks | Public `BoolFeedback`, `IntFeedback` and `StringFeedback` members |
 
-A section containing `<!-- SKIP -->` is never changed. Factories and join maps are found by their content, so renaming them (for example to `SonyBraviaDeviceFactory`) needs no changes.
+A section containing `<!-- SKIP -->` is never changed, except that the Config Example's `type` and `uid` are still updated as described above. Factories and join maps are found by their content, so renaming them (for example to `SonyBraviaDeviceFactory`) needs no changes.
 
 ### Commit message rules
 

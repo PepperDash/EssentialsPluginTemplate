@@ -6,7 +6,8 @@
 // except that:
 // - it is deterministic: source files are read in sorted folder order and each file's Supported Types
 //   keep their declared order (metadata.py used os.walk order and an unordered set)
-// - each Minimum Essentials Framework Version is listed once
+// - each distinct Minimum Essentials Framework Version is listed once, including several in one file
+// - join access (R, W or R/W) follows JoinCapabilities (metadata.py listed every join as R)
 // - a join map is also found by its class declaration when its file is not named <ClassName>.cs
 // - factories are recognized by their Essentials base class, whatever they are named
 // - interfaces are matched case-sensitively (IpTableObjectBase is a base class)
@@ -123,9 +124,9 @@ public static class ReadmeDocs
         {
             // De-duplicated per file only, as in metadata.py
             supportedTypes.AddRange(ExtractSupportedTypes(source.Content).Distinct());
-            var version = MinimumVersionPattern.Match(source.Content);
-            // Listed once per distinct value (metadata.py repeated it for every factory)
-            if (version.Success && !minimumVersions.Contains(version.Groups[1].Value)) minimumVersions.Add(version.Groups[1].Value);
+            // Listed once per distinct value (metadata.py took the first per file and repeated it for every factory)
+            foreach (Match version in MinimumVersionPattern.Matches(source.Content))
+                if (!minimumVersions.Contains(version.Groups[1].Value)) minimumVersions.Add(version.Groups[1].Value);
             foreach (Match m in PublicMethodPattern.Matches(source.Content)) publicMethods.Add(m.Value.Trim());
             var uncommented = LineComment.Replace(source.Content, "");
             AddFeedbacks(BoolFeedbackPattern, uncommented, boolFeedbacks);
@@ -240,6 +241,7 @@ public static class ReadmeDocs
         public string Number;
         public string Type;
         public string Description;
+        public string Access;
     }
 
     private static List<string> FindJoinMapClasses(IList<SourceFile> sources)
@@ -277,7 +279,7 @@ public static class ReadmeDocs
         {
             var joinName = match.Groups["join_name"].Value;
             var joinParams = match.Groups["join_params"].Value;
-            string number = null, description = null, type = null;
+            string number = null, description = null, type = null, access = "R";
 
             var data = JoinDataPattern.Match(joinParams);
             if (data.Success)
@@ -292,13 +294,26 @@ public static class ReadmeDocs
                 if (d.Success) description = d.Groups[1].Value;
                 var t = Regex.Match(metadata.Groups[1].Value, @"JoinType\s*=\s*eJoinType\.(\w+)");
                 if (t.Success) type = t.Groups[1].Value;
+                var c = Regex.Match(metadata.Groups[1].Value, @"JoinCapabilities\s*=\s*([^,\r\n}]+)");
+                if (c.Success) access = JoinAccess(c.Groups[1].Value) ?? access;
             }
 
             if (joinName.Length > 0 && number != null && type != null)
-                yield return new JoinInfo { Number = number, Type = type, Description = description };
+                yield return new JoinInfo { Number = number, Type = type, Description = description, Access = access };
             else
                 log("incomplete join information for '" + joinName + "'; skipping");
         }
+    }
+
+    // ToSIMPL is feedback SIMPL reads (R), FromSIMPL is a command SIMPL writes (W); null for None
+    private static string JoinAccess(string capabilities)
+    {
+        var read = Regex.IsMatch(capabilities, @"\b(?:ToSIMPL|ToFromSIMPL)\b");
+        var write = Regex.IsMatch(capabilities, @"\b(?:FromSIMPL|ToFromSIMPL)\b");
+        if (read && write) return "R/W";
+        if (read) return "R";
+        if (write) return "W";
+        return null;
     }
 
     private static string JoinMapChart(List<JoinInfo> joins)
@@ -314,7 +329,7 @@ public static class ReadmeDocs
             sb.Append("| Join | Type (RW) | Description |\n");
             sb.Append("| --- | --- | --- |\n");
             foreach (var j in ofKind)
-                sb.Append("| ").Append(j.Number).Append(" | R | ").Append(j.Description ?? "None").Append(" |\n");
+                sb.Append("| ").Append(j.Number).Append(" | ").Append(j.Access).Append(" | ").Append(j.Description ?? "None").Append(" |\n");
             sb.Append('\n');
         }
         return sb.ToString();
@@ -500,7 +515,8 @@ public static class ReadmeDocs
         return null;
     }
 
-    // Applied even to <!-- SKIP --> sections: the unused "uid" is removed and "type" is set
+    // Applied even to <!-- SKIP --> sections, so "type" always follows the factories: the unused "uid"
+    // is removed and "type" is set
     private static string FixConfigExample(string readme, string configType)
     {
         var section = Regex.Match(readme, @"(?s)<!-- START Config Example -->.*?<!-- END Config Example -->");

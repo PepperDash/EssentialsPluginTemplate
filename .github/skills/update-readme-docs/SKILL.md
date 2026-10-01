@@ -23,5 +23,5 @@ Regenerates the marker-delimited documentation sections in `README.md` on the cu
 
 ## Rules
 
-- `<!-- SKIP -->` inside a section makes the generator leave it untouched on later runs. Use it only for sections you curated by hand, and say so in the summary.
+- `<!-- SKIP -->` inside a section makes the generator leave it untouched on later runs, except that the Config Example's `type` and `uid` are still updated. Use it only for sections you curated by hand, and say so in the summary.
 - Never fabricate joins, feedbacks, or config properties; derive everything from `src/`.

@@ -11,7 +11,7 @@ namespace PepperDash.Essentials.Plugin
 	/// Rename the class to match the device plugin being developed
 	/// </remarks>
 	/// <example>
-	/// "EssentialsPluginFactoryTemplate" renamed to "MyLogicDeviceFactory"
+	/// "MakeModelLogicDeviceFactory" renamed to "RoomSchedulerLogicDeviceFactory"
 	/// </example>
 	public class MakeModelLogicDeviceFactory : EssentialsPluginDeviceFactory<MakeModelLogicDevice>
 	{
@@ -24,11 +24,11 @@ namespace PepperDash.Essentials.Plugin
 		/// <example>
 		/// Set the minimum Essentials Framework Version
 		/// <code>
-		/// MinimumEssentialsFrameworkVersion = "1.6.4;
+		/// MinimumEssentialsFrameworkVersion = "2.0.0";
 		/// </code>
 		/// In the constructor we initialize the list with the typenames that will build an instance of this device
 		/// <code>
-		/// TypeNames = new List<string>() { "SamsungMdc", "SamsungMdcDisplay" };
+		/// TypeNames = new List<string>() { "roomScheduler" };
 		/// </code>
 		/// </example>
 		public MakeModelLogicDeviceFactory()
@@ -43,7 +43,7 @@ namespace PepperDash.Essentials.Plugin
 		}
 
 		/// <summary>
-		/// Builds and returns an instance of EssentialsPluginTemplateLogicDevice
+		/// Builds and returns an instance of MakeModelLogicDevice
 		/// </summary>
 		/// <param name="dc">device configuration</param>
 		/// <returns>plugin device or null</returns>

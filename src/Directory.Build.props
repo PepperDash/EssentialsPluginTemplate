@@ -8,7 +8,6 @@
     <Copyright>Copyright © 2026</Copyright>
     <RepositoryUrl>https://github.com/PepperDash/EssentialsPluginTemplate.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>Crestron; 4series</PackageTags>
     <PackageOutputPath>..\output</PackageOutputPath>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>

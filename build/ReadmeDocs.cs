@@ -3,9 +3,14 @@
 //
 // Port of metadata.py from PepperDash/workflow-templates (commit 681f68e), followed by the template's
 // post-processing (Config Example type/uid, Base Classes and Interfaces). Output matches metadata.py
-// except that each Minimum Essentials Framework Version is listed once, and that it is deterministic:
-// source files are read in sorted folder order and each file's Supported Types keep their declared
-// order (metadata.py used os.walk order and an unordered set).
+// except that:
+// - it is deterministic: source files are read in sorted folder order and each file's Supported Types
+//   keep their declared order (metadata.py used os.walk order and an unordered set)
+// - each Minimum Essentials Framework Version is listed once
+// - a join map is also found by its class declaration when its file is not named <ClassName>.cs
+// - factories are recognized by their Essentials base class, whatever they are named
+// - interfaces are matched case-sensitively (IpTableObjectBase is a base class)
+// - Base Classes come before Interfaces, as plain list items
 //
 // Must stay compatible with netstandard2.0 / C# 7.3 so it also compiles under Visual Studio's MSBuild.
 

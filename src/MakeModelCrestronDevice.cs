@@ -16,7 +16,7 @@ namespace PepperDash.Essentials.Plugin
 	/// Rename the class to match the device plugin being developed.
 	/// </remarks>
 	/// <example>
-	/// "EssentialsPluginDeviceTemplate" renamed to "SamsungMdcDevice"
+	/// "MakeModelCrestronDevice" renamed to "CrestronTst1080Device"
 	/// </example>
 	public class MakeModelCrestronDevice : CrestronGenericBridgeableBaseDevice
 	{

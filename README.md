@@ -5,7 +5,7 @@
 ![Crestron](https://img.shields.io/badge/Crestron-4--Series-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-# Essentials Plugin Template (c) 2025
+# Essentials Plugin Template (c) 2026
 
 ## Overview
 
@@ -147,11 +147,11 @@ In CI (`CI=true`) the build regenerates the sections in memory and fails with `P
 
 Then review `git diff README.md` and commit the result with your changes.
 
-The generator is a C# port of `metadata.py` from [PepperDash/workflow-templates](https://github.com/PepperDash/workflow-templates) (used by the older `update-readme` workflow) and produces the same sections, except that the output order no longer depends on the file system.
+The generator is a C# port of `metadata.py` from [PepperDash/workflow-templates](https://github.com/PepperDash/workflow-templates) (used by the older `update-readme` workflow) and produces the same sections, with these differences: the output order no longer depends on the file system, each Minimum Essentials Framework Version is listed once, a join map is also found when its file is not named after the class, interface names are matched case-sensitively, and Base Classes are listed before Interfaces as plain items.
 
 #### Controlling the Output
 
-* The Config Example `type` is the first `TypeNames` entry of the first C# file (by file name) that sets `TypeNames`, and the unused `uid` property is removed. Factories, join maps and config classes are found by their content, not their file or class names, so renaming them (for example to `SonyBraviaDeviceFactory`) needs no changes here.
+* The Config Example `type` is the first `TypeNames` entry of the first C# file (by file name) that sets `TypeNames`, and the unused `uid` property is removed. Factories and join maps are found by their content, not their file or class names, so renaming them (for example to `SonyBraviaDeviceFactory`) needs no changes here. The config class is the class whose name ends in `Config` or `ConfigObject` with the most properties.
 * Base Classes and Interfaces list the base classes and interfaces declared on the plugin's own device classes (factories and join maps are excluded). Each has its own section; Interfaces is empty when no device class declares one.
 * Sections the generator gets wrong (for example placeholder config values or a join map it can't find) can be edited by hand. Add `<!-- SKIP -->` on the line after the `<!-- START name -->` marker and later runs leave that section alone.
 * To hide a section that doesn't apply, keep its markers with only `<!-- SKIP -->` between them. Deleting the markers doesn't work; the generator adds them back.

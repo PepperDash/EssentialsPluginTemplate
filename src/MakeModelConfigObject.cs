@@ -11,7 +11,7 @@ namespace PepperDash.Essentials.Plugin
 	/// Rename the class to match the device plugin being created
 	/// </remarks>
 	/// <example>
-	/// "EssentialsPluginConfigObjectTemplate" renamed to "SamsungMdcConfig"
+	/// "MakeModelConfig" renamed to "SamsungMdcConfig"
 	/// </example>
 	[ConfigSnippet("\"properties\":{\"control\":{}")]
 	public class MakeModelConfig

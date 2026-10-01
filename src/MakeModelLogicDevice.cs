@@ -13,7 +13,7 @@ namespace PepperDash.Essentials.Plugin
 	/// Rename the class to match the device plugin being developed.
 	/// </remarks>
 	/// <example>
-	/// "EssentialsPluginTemplateLogicDevice" renamed to "SamsungMdcDevice"
+	/// "MakeModelLogicDevice" renamed to "RoomSchedulerLogicDevice"
 	/// </example>
 	public class MakeModelLogicDevice : EssentialsBridgeableDevice
 	{

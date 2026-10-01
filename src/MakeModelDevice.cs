@@ -17,7 +17,7 @@ namespace PepperDash.Essentials.Plugin
 	/// Rename the class to match the device plugin being developed.
 	/// </remarks>
 	/// <example>
-	/// "EssentialsPluginDeviceTemplate" renamed to "SamsungMdcDevice"
+	/// "MakeModelDevice" renamed to "SamsungMdcDevice"
 	/// </example>
 	public class MakeModelDevice : EssentialsBridgeableDevice
 	{
@@ -152,7 +152,7 @@ namespace PepperDash.Essentials.Plugin
 			StatusFeedback?.FireUpdate();
 		}
 
-		// TODO [ ] If not using an API with a delimeter, delete the method below
+		// TODO [ ] If not using an API with a delimiter, delete the method below
 		private void Handle_LineRecieved(object sender, GenericCommMethodReceiveTextArgs args)
 		{
 			// TODO [ ] Implement method 
@@ -161,14 +161,14 @@ namespace PepperDash.Essentials.Plugin
 			receiveQueue.Enqueue(new ProcessStringMessage(args.Text, ProcessFeedbackMessage));
 		}
 
-		// TODO [ ] If not using an HEX/byte based API with no delimeter,  delete the method below
+		// TODO [ ] If not using an HEX/byte based API with no delimiter,  delete the method below
 		private void Handle_BytesReceived(object sender, GenericCommMethodReceiveBytesArgs args)
 		{
 			// TODO [ ] Implement method 
 			throw new System.NotImplementedException();
 		}
 
-		// TODO [ ] If not using an ASCII based API with no delimeter, delete the method below
+		// TODO [ ] If not using an ASCII based API with no delimiter, delete the method below
 		void Handle_TextReceived(object sender, GenericCommMethodReceiveTextArgs e)
 		{
 			// TODO [ ] Implement method 
@@ -184,7 +184,7 @@ namespace PepperDash.Essentials.Plugin
 
 		}
 
-		// TODO [ ] If not using an ACII based API, delete the properties below
+		// TODO [ ] If not using an ASCII based API, delete the properties below
 		/// <summary>
 		/// Sends text to the device plugin comms
 		/// </summary>

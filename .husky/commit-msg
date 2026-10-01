@@ -1,5 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-## Lints the commit message against the Conventional Commits rules enforced in CI
+## Lints the commit message against Conventional Commits (rules in .husky/csx/commit-lint.csx)
 dotnet husky run --group commit-msg --args "$1"

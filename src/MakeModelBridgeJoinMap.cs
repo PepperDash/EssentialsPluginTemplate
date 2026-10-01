@@ -10,7 +10,7 @@ namespace PepperDash.Essentials.Plugin
 	/// </remarks>
 	/// <see cref="PepperDash.Essentials.Core.Bridges"/>
 	/// <example>
-	/// "EssentialsPluginBridgeJoinMapTemplate" renamed to "SamsungMdcBridgeJoinMap"
+	/// "EssentialsPluginTemplateBridgeJoinMap" renamed to "SamsungMdcBridgeJoinMap"
 	/// </example>
 	public class EssentialsPluginTemplateBridgeJoinMap : JoinMapBaseAdvanced
 	{

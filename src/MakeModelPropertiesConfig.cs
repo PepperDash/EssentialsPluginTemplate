@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using PepperDash.Essentials.Core;
 
-namespace PepperDash.Essentials.Plugin
+namespace PepperDash.Essentials.Plugins.MakeModel
 {
 	/// <summary>
 	/// Plugin device configuration object
@@ -11,10 +11,10 @@ namespace PepperDash.Essentials.Plugin
 	/// Rename the class to match the device plugin being created
 	/// </remarks>
 	/// <example>
-	/// "MakeModelConfig" renamed to "SamsungMdcConfig"
+	/// "MakeModelPropertiesConfig" renamed to "SamsungMdcPropertiesConfig"
 	/// </example>
 	[ConfigSnippet("\"properties\":{\"control\":{}")]
-	public class MakeModelConfig
+	public class MakeModelPropertiesConfig
 	{
 		/// <summary>
 		/// JSON control object
@@ -139,7 +139,7 @@ namespace PepperDash.Essentials.Plugin
 		/// </code>
 		/// </example>
 		[JsonProperty("DeviceDictionary")]
-		public Dictionary<string, MakeModelConfigDictionary> DeviceDictionary { get; set; }
+		public Dictionary<string, MakeModelPropertiesConfigDictionary> DeviceDictionary { get; set; }
 
 		/// <summary>
 		/// Constuctor
@@ -148,9 +148,9 @@ namespace PepperDash.Essentials.Plugin
 		/// If using a collection you must instantiate the collection in the constructor
 		/// to avoid exceptions when reading the configuration file 
 		/// </remarks>
-		public MakeModelConfig()
+		public MakeModelPropertiesConfig()
 		{
-			DeviceDictionary = new Dictionary<string, MakeModelConfigDictionary>();
+			DeviceDictionary = new Dictionary<string, MakeModelPropertiesConfigDictionary>();
 		}
 	}
 
@@ -172,7 +172,7 @@ namespace PepperDash.Essentials.Plugin
 	/// }
 	/// </code>
 	/// </example>
-	public class MakeModelConfigDictionary
+	public class MakeModelPropertiesConfigDictionary
 	{
 		/// <summary>
 		/// Serializes collection name property

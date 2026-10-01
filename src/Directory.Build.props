@@ -4,9 +4,9 @@
     <InformationalVersion>$(Version)</InformationalVersion>
     <Authors>PepperDash Technology</Authors>
     <Company>PepperDash Technology</Company>
-    <Product>PepperDash Essentials Plugin Template</Product>
+    <Product>PepperDash Essentials Plugin Make Model</Product>
     <Copyright>Copyright © 2026</Copyright>
-    <RepositoryUrl>https://github.com/PepperDash/EssentialsPluginTemplate.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/PepperDash/epi-make-model.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageOutputPath>..\output</PackageOutputPath>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>

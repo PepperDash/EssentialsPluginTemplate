@@ -1,6 +1,6 @@
 ﻿using PepperDash.Essentials.Core;
 
-namespace PepperDash.Essentials.Plugin
+namespace PepperDash.Essentials.Plugins.MakeModel
 {
 	/// <summary>
 	/// Plugin device Bridge Join Map
@@ -10,9 +10,9 @@ namespace PepperDash.Essentials.Plugin
 	/// </remarks>
 	/// <see cref="PepperDash.Essentials.Core.Bridges"/>
 	/// <example>
-	/// "EssentialsPluginTemplateBridgeJoinMap" renamed to "SamsungMdcBridgeJoinMap"
+	/// "MakeModelBridgeJoinMap" renamed to "SamsungMdcBridgeJoinMap"
 	/// </example>
-	public class EssentialsPluginTemplateBridgeJoinMap : JoinMapBaseAdvanced
+	public class MakeModelBridgeJoinMap : JoinMapBaseAdvanced
 	{
 		#region Digital
 
@@ -93,8 +93,8 @@ namespace PepperDash.Essentials.Plugin
 		/// Plugin device BridgeJoinMap constructor
 		/// </summary>
 		/// <param name="joinStart">This will be the join it starts on the EISC bridge</param>
-		public EssentialsPluginTemplateBridgeJoinMap(uint joinStart)
-			: base(joinStart, typeof(EssentialsPluginTemplateBridgeJoinMap))
+		public MakeModelBridgeJoinMap(uint joinStart)
+			: base(joinStart, typeof(MakeModelBridgeJoinMap))
 		{
 		}
 	}

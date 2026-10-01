@@ -4,7 +4,7 @@ using PepperDash.Core.Logging;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
 
-namespace PepperDash.Essentials.Plugin
+namespace PepperDash.Essentials.Plugins.MakeModel
 {
 	/// <summary>
 	/// Plugin device template for logic devices that don't communicate outside the program
@@ -20,7 +20,7 @@ namespace PepperDash.Essentials.Plugin
 		/// <summary>
 		/// It is often desirable to store the config
 		/// </summary>
-		private readonly MakeModelConfig config;
+		private readonly MakeModelPropertiesConfig config;
 
 		/// <summary>
 		/// Plugin device constructor
@@ -28,7 +28,7 @@ namespace PepperDash.Essentials.Plugin
 		/// <param name="key"></param>
 		/// <param name="name"></param>
 		/// <param name="config"></param>
-		public MakeModelLogicDevice(string key, string name, MakeModelConfig config)
+		public MakeModelLogicDevice(string key, string name, MakeModelPropertiesConfig config)
 			: base(key, name)
 		{
 			this.LogInformation("Constructing new {0} instance", name);
@@ -49,7 +49,7 @@ namespace PepperDash.Essentials.Plugin
 		/// <param name="bridge"></param>
 		public override void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
 		{
-			var joinMap = new EssentialsPluginTemplateBridgeJoinMap(joinStart);
+			var joinMap = new MakeModelBridgeJoinMap(joinStart);
 
 			// This adds the join map to the collection on the bridge
 			bridge?.AddJoinMap(Key, joinMap);

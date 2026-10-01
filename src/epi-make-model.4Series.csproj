@@ -5,15 +5,15 @@
 	<!-- Plugin-specific values; shared values (Version, Copyright, Company, ...) are in Directory.Build.props -->
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
-		<RootNamespace>PepperDash.Essentials.Plugin</RootNamespace>
+		<RootNamespace>PepperDash.Essentials.Plugins.MakeModel</RootNamespace>
 		<Deterministic>false</Deterministic>
-		<AssemblyTitle>PepperDash.Essentials.Plugin.Make.Model</AssemblyTitle>
-		<Description>This software is a template for a PepperDash Essentials Plugin.</Description>
+		<AssemblyTitle>PepperDash.Essentials.Plugins.Make.Model</AssemblyTitle>
+		<Description>This software is a PepperDash Essentials Plugin for a Make Model device.</Description>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<OutputPath>bin\$(Configuration)\</OutputPath>
-		<PackageId>PepperDash.Essentials.Plugins.Template</PackageId>
-		<PackageProjectUrl>https://github.com/PepperDash/EssentialsPluginTemplate</PackageProjectUrl>
-		<PackageTags>crestron 4series essentials plugin template</PackageTags>
+		<PackageId>PepperDash.Essentials.Plugins.Make.Model</PackageId>
+		<PackageProjectUrl>https://github.com/PepperDash/epi-make-model</PackageProjectUrl>
+		<PackageTags>crestron 4series essentials plugin</PackageTags>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

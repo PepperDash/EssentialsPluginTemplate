@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
 
-namespace PepperDash.Essentials.Plugin
+namespace PepperDash.Essentials.Plugins.MakeModel
 {
 	/// <summary>
 	/// Plugin device factory for devices that use IBasicCommunication
@@ -57,7 +57,7 @@ namespace PepperDash.Essentials.Plugin
 			Debug.LogVerbose("[{key}] Factory Attempting to create new device from type: {type}", dc.Key, dc.Type);
 
 			// get the plugin device properties configuration object & check for null 
-			var propertiesConfig = dc.Properties.ToObject<MakeModelConfig>();
+			var propertiesConfig = dc.Properties.ToObject<MakeModelPropertiesConfig>();
 			if (propertiesConfig == null)
 			{
 				Debug.LogError("[{key}] Factory: failed to read properties config for {name}", dc.Key, dc.Name);

@@ -2,15 +2,22 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Install git hooks",
-      "type": "shell",
-      "command": "dotnet tool restore && dotnet husky install",
-      "options": {
-        "shell": {
-          "executable": "pwsh",
-          "args": ["-NoProfile", "-Command"]
-        }
+      "label": "Restore dotnet tools",
+      "type": "process",
+      "command": "dotnet",
+      "args": ["tool", "restore"],
+      "presentation": {
+        "reveal": "silent",
+        "close": true
       },
+      "problemMatcher": []
+    },
+    {
+      "label": "Install git hooks",
+      "type": "process",
+      "command": "dotnet",
+      "args": ["husky", "install"],
+      "dependsOn": "Restore dotnet tools",
       "presentation": {
         "reveal": "silent",
         "close": true

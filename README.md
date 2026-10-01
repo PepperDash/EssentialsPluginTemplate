@@ -5,7 +5,7 @@
 ![Crestron](https://img.shields.io/badge/Crestron-4--Series-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-# Essentials Plugin Template (c) 2025
+# Essentials Plugin Template (c) 2026
 
 ## License
 
@@ -42,19 +42,33 @@ See the Task List in Visual Studio for a guide on how to start using the templat
 
 For renaming instructions in particular, see the XML `remarks` tags on class definitions
 
+## README Badges
+
+The `.NET` and `PepperDash Essentials` badges at the top of this README are kept in sync by an MSBuild target in `src/Directory.Build.targets`, so no extra tools are needed:
+
+* `.NET` badge - `TargetFramework` of the plugin project
+* `PepperDash Essentials` badge - the highest `MinimumEssentialsFrameworkVersion` in the project's `*Factory.cs` files (subfolders included)
+
+Every local `dotnet build` (or Visual Studio build) rewrites the badges when they are stale; commit the `README.md` change with your code. The `PepperDashEssentials` `PackageReference` version in the csproj must be equal to or greater than `MinimumEssentialsFrameworkVersion` (a prerelease such as `2.13.0-beta` counts as lower than `2.13.0`); otherwise the build fails with `PDREADME002`.
+
+In CI (`CI=true`) the target only checks: a stale badge fails the build with `PDREADME004`, so a release is never packaged with an out-of-date README.
+
+* Check locally without modifying files: `dotnet build -p:ReadmeMode=Check`
+* Skip the target: `dotnet build -p:SkipReadmeBadges=true`
+
+Keep a `MinimumEssentialsFrameworkVersion = "x.y.z";` assignment in at least one factory, and keep the two badges in this README. Renaming the project or factory classes does not require changes.
+
 ## Git Hooks (Husky.Net)
 
-This repo uses [Husky.Net](https://alirezanet.github.io/Husky.Net/) to run a `pre-commit` hook. The hook runs `.github/scripts/Update-ReadmeBadges.ps1`, which keeps the `.NET` and `PepperDash Essentials` badges at the top of this README in sync with the project:
+This repo uses [Husky.Net](https://alirezanet.github.io/Husky.Net/) for one `commit-msg` hook. It runs `.husky/csx/commit-lint.csx`, which checks the message against [Conventional Commits](https://www.conventionalcommits.org/) using the type list from the shared `checkCommitMessage` workflow in PepperDash/workflow-templates (this template's CI does not currently run that check):
 
-* `.NET` badge - `TargetFramework` in `src/*.4Series.csproj`
-* `PepperDash Essentials` badge - the highest `MinimumEssentialsFrameworkVersion` in `src/*Factory.cs`
+* Header: `<type>(<optional scope>): <subject>`, at most 100 characters
+* Types: `feat`, `fix`, `chore`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `revert`, `wip`
+* A blank line between the header and the body
+* Merge, `Revert "..."`, `fixup!`, `squash!` and `amend!` messages are allowed locally (squash `fixup!` commits before pushing)
+* Breaking changes use a `BREAKING CHANGE:` footer; the `feat!:` form is not recognized by the release tooling
 
-If the badges change, `README.md` is re-staged automatically so the update is part of your commit. A warning is printed if the `PepperDashEssentials` package version in the csproj differs from `MinimumEssentialsFrameworkVersion`.
-
-### Requirements
-
-* [.NET SDK](https://dotnet.microsoft.com/download) (provides `dotnet tool`)
-* [PowerShell 7+ (`pwsh`)](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) on the `PATH` (Windows, macOS and Linux). Windows PowerShell 5.1 is not used.
+The only requirement is the [.NET SDK](https://dotnet.microsoft.com/download).
 
 ### Setup
 
@@ -75,15 +89,8 @@ Verify with `git config core.hooksPath`, which should print `.husky`.
 ### Usage
 
 * Commit as usual; the hook runs on every `git commit`.
-* Run it on demand: `dotnet husky run`
-* Check without modifying files (useful for CI): `pwsh -NoProfile -File .github/scripts/Update-ReadmeBadges.ps1 -Check`
-* The hook refuses to run if `README.md`, the `.4Series.csproj`, or a `*Factory.cs` file has unstaged or untracked changes, so a partial commit never picks up unrelated edits. Stage or stash them and commit again.
 * Skip the hook for a single commit: `git commit --no-verify`
 * Skip the automatic install on restore: set the `HUSKY=0` environment variable. It is also skipped when `CI=true`.
-
-### Renaming
-
-The script locates files by pattern (`*.4Series.csproj`, `*Factory.cs`), so renaming the project or factory classes does not require changes. Keep a `MinimumEssentialsFrameworkVersion = "x.y.z";` assignment in at least one factory, and keep the two badges in this README.
 
 ## Build Instructions (PepperDash Internal) 
 

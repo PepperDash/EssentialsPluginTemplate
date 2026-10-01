@@ -34,10 +34,7 @@ _ReSharper*/
 .idea/
 *.sln.iml
 
-# VS Code (tasks.json and extensions.json stay shared)
-.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/extensions.json
+# VS Code (.vscode/ settings, tasks and extensions are shared)
 *.code-workspace
 
 # Code coverage

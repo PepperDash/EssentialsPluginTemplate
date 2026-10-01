@@ -1,0 +1,5 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+## Lints the commit message against the Conventional Commits rules enforced in CI
+dotnet husky run --group commit-msg --args "$1"

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
 
-namespace PepperDash.Essentials.Plugin
+namespace PepperDash.Essentials.Plugins.MakeModel
 {
 	/// <summary>
 	/// Plugin device factory for devices that use IBasicCommunication
@@ -11,7 +11,7 @@ namespace PepperDash.Essentials.Plugin
 	/// Rename the class to match the device plugin being developed
 	/// </remarks>
 	/// <example>
-	/// "EssentialsPluginFactoryTemplate" renamed to "MyDeviceFactory"
+	/// "MakeModelDeviceFactory" renamed to "SamsungMdcDeviceFactory"
 	/// </example>
 	public class MakeModelDeviceFactory : EssentialsPluginDeviceFactory<MakeModelDevice>
 	{
@@ -24,7 +24,7 @@ namespace PepperDash.Essentials.Plugin
 		/// <example>
 		/// Set the minimum Essentials Framework Version
 		/// <code>
-		/// MinimumEssentialsFrameworkVersion = "2.12.1;
+		/// MinimumEssentialsFrameworkVersion = "2.0.0";
 		/// </code>
 		/// In the constructor we initialize the list with the typenames that will build an instance of this device
 		/// <code>
@@ -43,7 +43,7 @@ namespace PepperDash.Essentials.Plugin
 		}
 
 		/// <summary>
-		/// Builds and returns an instance of EssentialsPluginDeviceTemplate
+		/// Builds and returns an instance of MakeModelDevice
 		/// </summary>
 		/// <param name="dc">device configuration</param>
 		/// <returns>plugin device or null</returns>
@@ -57,7 +57,7 @@ namespace PepperDash.Essentials.Plugin
 			Debug.LogVerbose("[{key}] Factory Attempting to create new device from type: {type}", dc.Key, dc.Type);
 
 			// get the plugin device properties configuration object & check for null 
-			var propertiesConfig = dc.Properties.ToObject<MakeModelConfig>();
+			var propertiesConfig = dc.Properties.ToObject<MakeModelPropertiesConfig>();
 			if (propertiesConfig == null)
 			{
 				Debug.LogError("[{key}] Factory: failed to read properties config for {name}", dc.Key, dc.Name);
@@ -65,7 +65,7 @@ namespace PepperDash.Essentials.Plugin
 			}
 
 			// attempt build the plugin device comms device & check for null
-			// TODO { ] As of PepperDash Core 1.0.41, HTTP and HTTPS are not valid eControlMethods and will throw an exception.
+			// TODO [ ] As of PepperDash Core 1.0.41, HTTP and HTTPS are not valid eControlMethods and will throw an exception.
 			var comms = CommFactory.CreateCommForDevice(dc);
 			if (comms == null)
 			{

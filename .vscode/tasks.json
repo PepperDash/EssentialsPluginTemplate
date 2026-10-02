@@ -5,7 +5,10 @@
       "label": "Restore dotnet tools",
       "type": "process",
       "command": "dotnet",
-      "args": ["tool", "restore"],
+      "args": [
+        "tool",
+        "restore"
+      ],
       "presentation": {
         "reveal": "silent",
         "close": true
@@ -16,7 +19,10 @@
       "label": "Install git hooks",
       "type": "process",
       "command": "dotnet",
-      "args": ["husky", "install"],
+      "args": [
+        "husky",
+        "install"
+      ],
       "dependsOn": "Restore dotnet tools",
       "presentation": {
         "reveal": "silent",
@@ -26,6 +32,17 @@
         "runOn": "folderOpen"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "Update README docs",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "msbuild",
+        "-nologo",
+        "-t:UpdateReadmeDocs"
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

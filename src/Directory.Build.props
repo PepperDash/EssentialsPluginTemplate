@@ -4,11 +4,10 @@
     <InformationalVersion>$(Version)</InformationalVersion>
     <Authors>PepperDash Technology</Authors>
     <Company>PepperDash Technology</Company>
-    <Product>PepperDash Essentials Plugin Template</Product>
-    <Copyright>Copyright © 2025</Copyright>
-    <RepositoryUrl>https://github.com/PepperDash/EssentialsPluginTemplate.git</RepositoryUrl>
+    <Product>PepperDash Essentials Plugin Make Model</Product>
+    <Copyright>Copyright © 2026</Copyright>
+    <RepositoryUrl>https://github.com/PepperDash/epi-make-model.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>Crestron; 4series</PackageTags>
     <PackageOutputPath>..\output</PackageOutputPath>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>

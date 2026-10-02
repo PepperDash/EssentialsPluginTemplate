@@ -25,7 +25,8 @@
 
   <!--
     README badges: .NET from $(TargetFramework), PepperDash Essentials from the highest
-    MinimumEssentialsFrameworkVersion in the *Factory.cs files. Rewritten before build locally;
+    MinimumEssentialsFrameworkVersion assignment in the project's C# files (factories can have any name).
+    Rewritten before build locally;
     checked (build error on drift) when CI=true or -p:ReadmeMode=Check. Opt out: -p:SkipReadmeBadges=true
   -->
   <PropertyGroup>
@@ -51,7 +52,7 @@ public class SyncReadmeBadges : Task
     [Required] public string ReadmePath { get; set; }
     [Required] public string TargetFramework { get; set; }
     public string EssentialsPackageVersion { get; set; }
-    public ITaskItem[] FactoryFiles { get; set; }
+    public ITaskItem[] SourceFiles { get; set; }
     public bool CheckOnly { get; set; }
 
     private static readonly Regex MinVersionPattern =
@@ -63,7 +64,7 @@ public class SyncReadmeBadges : Task
 
         Version minVersion = null;
         string minText = null;
-        foreach (var item in FactoryFiles ?? new ITaskItem[0])
+        foreach (var item in SourceFiles ?? new ITaskItem[0])
         {
             var code = File.ReadAllText(item.GetMetadata("FullPath"), utf8);
             foreach (Match m in MinVersionPattern.Matches(code))
@@ -74,7 +75,7 @@ public class SyncReadmeBadges : Task
         }
         if (minVersion == null)
         {
-            Error("PDREADME001", "MinimumEssentialsFrameworkVersion not found in any *Factory.cs file");
+            Error("PDREADME001", "no MinimumEssentialsFrameworkVersion = \"x.y.z\"; assignment found in the project's C# files");
             return false;
         }
 
@@ -173,10 +174,7 @@ public class SyncReadmeBadges : Task
     </Task>
   </UsingTask>
 
-  <Target Name="_CollectReadmeBadgeInputs">
-    <ItemGroup>
-      <_ReadmeFactoryFiles Include="@(Compile)" Condition="$([System.String]::Copy('%(Filename)').EndsWith('Factory'))" />
-    </ItemGroup>
+  <Target Name="_CollectReadmeBadgeInputs" DependsOnTargets="_CollectReadmeSources">
     <PropertyGroup>
       <_ReadmeEssentialsVersion>@(PackageReference->WithMetadataValue('Identity', 'PepperDashEssentials')->'%(Version)')</_ReadmeEssentialsVersion>
     </PropertyGroup>
@@ -184,9 +182,9 @@ public class SyncReadmeBadges : Task
 
   <Target Name="UpdateReadmeBadges" BeforeTargets="BeforeBuild" DependsOnTargets="_CollectReadmeBadgeInputs"
           Condition="'$(_ReadmeBadgesEnabled)' == 'true' And '$(ReadmeMode)' != 'Check'"
-          Inputs="@(_ReadmeFactoryFiles);$(MSBuildProjectFullPath);$(MSBuildThisFileFullPath);$(ReadmePath)"
+          Inputs="@(_ReadmeSource);$(MSBuildProjectFullPath);$(MSBuildThisFileFullPath);$(ReadmePath)"
           Outputs="$(_ReadmeBadgesStamp)">
-    <SyncReadmeBadges ReadmePath="$(ReadmePath)" TargetFramework="$(TargetFramework)" EssentialsPackageVersion="$(_ReadmeEssentialsVersion)" FactoryFiles="@(_ReadmeFactoryFiles)" />
+    <SyncReadmeBadges ReadmePath="$(ReadmePath)" TargetFramework="$(TargetFramework)" EssentialsPackageVersion="$(_ReadmeEssentialsVersion)" SourceFiles="@(_ReadmeSource)" />
     <!-- Touched after the README write: README is both an input and an output -->
     <MakeDir Directories="$(IntermediateOutputPath)" />
     <Touch Files="$(_ReadmeBadgesStamp)" AlwaysCreate="true" />
@@ -197,6 +195,40 @@ public class SyncReadmeBadges : Task
 
   <Target Name="CheckReadmeBadges" BeforeTargets="BeforeBuild" DependsOnTargets="_CollectReadmeBadgeInputs"
           Condition="'$(_ReadmeBadgesEnabled)' == 'true' And '$(ReadmeMode)' == 'Check'">
-    <SyncReadmeBadges ReadmePath="$(ReadmePath)" TargetFramework="$(TargetFramework)" EssentialsPackageVersion="$(_ReadmeEssentialsVersion)" FactoryFiles="@(_ReadmeFactoryFiles)" CheckOnly="true" />
+    <SyncReadmeBadges ReadmePath="$(ReadmePath)" TargetFramework="$(TargetFramework)" EssentialsPackageVersion="$(_ReadmeEssentialsVersion)" SourceFiles="@(_ReadmeSource)" CheckOnly="true" />
+  </Target>
+
+  <!--
+    README docs: the START/END marker sections under "Plugin Documentation" (config example, supported types,
+    join maps, feedbacks, public methods), generated from the project's C# files by build/ReadmeDocs.cs.
+    Not part of the normal build: run `dotnet msbuild -t:UpdateReadmeDocs`, review the diff, commit it.
+    Checked (build error on drift) when CI=true or -p:ReadmeMode=Check. Opt out: -p:SkipReadmeDocsCheck=true
+  -->
+  <PropertyGroup>
+    <_ReadmeDocsEnabled Condition="'$(ProjectType)' == 'ProgramLibrary' And '$(DesignTimeBuild)' != 'true' And '$(TargetFramework)' != '' And Exists('$(ReadmePath)')">true</_ReadmeDocsEnabled>
+  </PropertyGroup>
+
+  <UsingTask TaskName="GenerateReadmeDocs" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <Task>
+      <Code Type="Class" Language="cs" Source="$(MSBuildThisFileDirectory)../build/ReadmeDocs.cs" />
+    </Task>
+  </UsingTask>
+
+  <!-- The project's own C# files (generated bin/obj sources excluded), with paths relative to the project -->
+  <Target Name="_CollectReadmeSources">
+    <ItemGroup>
+      <_ReadmeSource Include="@(Compile)" RelPath="$([MSBuild]::MakeRelative('$(MSBuildProjectDirectory)', '%(FullPath)'))" />
+      <_ReadmeSource Remove="@(_ReadmeSource)" Condition="$([System.String]::Copy('%(RelPath)').StartsWith('..')) Or $([System.String]::Copy('%(RelPath)').StartsWith('obj')) Or $([System.String]::Copy('%(RelPath)').StartsWith('bin'))" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Skipped for projects that do not own the README (e.g. test projects), so it can be run against the solution -->
+  <Target Name="UpdateReadmeDocs" DependsOnTargets="_CollectReadmeSources" Condition="'$(_ReadmeDocsEnabled)' == 'true'">
+    <GenerateReadmeDocs ReadmePath="$(ReadmePath)" SourceFiles="@(_ReadmeSource)" />
+  </Target>
+
+  <Target Name="CheckReadmeDocs" AfterTargets="CheckReadmeBadges" DependsOnTargets="_CollectReadmeSources"
+          Condition="'$(_ReadmeDocsEnabled)' == 'true' And '$(ReadmeMode)' == 'Check' And '$(SkipReadmeDocsCheck)' != 'true'">
+    <GenerateReadmeDocs ReadmePath="$(ReadmePath)" SourceFiles="@(_ReadmeSource)" CheckOnly="true" />
   </Target>
 </Project>

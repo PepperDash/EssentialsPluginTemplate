@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using PepperDash.Essentials.Core;
 
-namespace PepperDash.Essentials.Plugin
+namespace PepperDash.Essentials.Plugins.MakeModel
 {
 	/// <summary>
 	/// Plugin device configuration object
@@ -11,10 +11,10 @@ namespace PepperDash.Essentials.Plugin
 	/// Rename the class to match the device plugin being created
 	/// </remarks>
 	/// <example>
-	/// "EssentialsPluginConfigObjectTemplate" renamed to "SamsungMdcConfig"
+	/// "MakeModelPropertiesConfig" renamed to "SamsungMdcPropertiesConfig"
 	/// </example>
 	[ConfigSnippet("\"properties\":{\"control\":{}")]
-	public class MakeModelConfig
+	public class MakeModelPropertiesConfig
 	{
 		/// <summary>
 		/// JSON control object
@@ -25,9 +25,26 @@ namespace PepperDash.Essentials.Plugin
 		/// In order to do so, you will need the username and password in the "tcpSshProperties" object.
 		/// </remarks>
 		/// <example>
+		/// TCP/IP (used for the README Config Example)
 		/// <code>
 		/// "control": {
 		///		"method": "tcpIp",
+		///		"tcpSshProperties": {
+		///			"address": "172.22.0.101",
+		///			"port": 23,
+		///			"username": "admin",
+		///			"password": "password",
+		///			"autoReconnect": true,
+		///			"autoReconnectIntervalMs": 10000
+		///		}
+		///	}
+		/// </code>
+		/// </example>
+		/// <example>
+		/// RS-232 on a processor COM port
+		/// <code>
+		/// "control": {
+		///		"method": "com",
 		///		"controlPortDevKey": "processor",
 		///		"controlPortNumber": 1,
 		///		"comParams": {
@@ -38,14 +55,6 @@ namespace PepperDash.Essentials.Plugin
 		///			"protocol": "RS232",
 		///			"hardwareHandshake": "None",
 		///			"softwareHandshake": "None"
-		///		},
-		///		"tcpSshProperties": {
-		///			"address": "172.22.0.101",
-		///			"port": 23,
-		///			"username": "admin",
-		///			"password": "password",
-		///			"autoReconnect": true,
-		///			"autoReconnectIntervalMs": 10000
 		///		}
 		///	}
 		/// </code>
@@ -65,7 +74,7 @@ namespace PepperDash.Essentials.Plugin
 		/// <example>
 		/// <code>
 		/// "properties": {
-		///		"polltimeMs": 30000
+		///		"pollTimeMs": 30000
 		/// }
 		/// </code>
 		/// </example>
@@ -119,27 +128,17 @@ namespace PepperDash.Essentials.Plugin
 		/// <example>
 		/// <code>
 		/// "properties": {
-		///		"presets": {
-		///			"preset1": {
-		///				"enabled": true,
-		///				"name": "Preset 1"
+		///		"DeviceDictionary": {
+		///			"item1": {
+		///				"name": "Item 1 Name",
+		///				"value": 1
 		///			}
 		///		}
 		/// }
 		/// </code>
 		/// </example>
-		/// <example>
-		/// <code>
-		/// "properties": {
-		///		"inputNames": {
-		///			"input1": "Input 1",
-		///			"input2": "Input 2"		
-		///		}
-		/// }
-		/// </code>
-		/// </example>
 		[JsonProperty("DeviceDictionary")]
-		public Dictionary<string, MakeModelConfigDictionary> DeviceDictionary { get; set; }
+		public Dictionary<string, MakeModelPropertiesConfigDictionary> DeviceDictionary { get; set; }
 
 		/// <summary>
 		/// Constuctor
@@ -148,9 +147,9 @@ namespace PepperDash.Essentials.Plugin
 		/// If using a collection you must instantiate the collection in the constructor
 		/// to avoid exceptions when reading the configuration file 
 		/// </remarks>
-		public MakeModelConfig()
+		public MakeModelPropertiesConfig()
 		{
-			DeviceDictionary = new Dictionary<string, MakeModelConfigDictionary>();
+			DeviceDictionary = new Dictionary<string, MakeModelPropertiesConfigDictionary>();
 		}
 	}
 
@@ -163,16 +162,16 @@ namespace PepperDash.Essentials.Plugin
 	/// <example>
 	/// <code>
 	/// "properties": {
-	///		"dictionary": {
+	///		"DeviceDictionary": {
 	///			"item1": {
 	///				"name": "Item 1 Name",
-	///				"value": "Item 1 Value"
+	///				"value": 1
 	///			}
 	///		}
 	/// }
 	/// </code>
 	/// </example>
-	public class MakeModelConfigDictionary
+	public class MakeModelPropertiesConfigDictionary
 	{
 		/// <summary>
 		/// Serializes collection name property

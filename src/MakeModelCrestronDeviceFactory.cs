@@ -3,7 +3,7 @@ using Crestron.SimplSharpPro.UI;
 using PepperDash.Core;
 using PepperDash.Essentials.Core;
 
-namespace PepperDash.Essentials.Plugin
+namespace PepperDash.Essentials.Plugins.MakeModel
 {
 
 	/// <summary>
@@ -13,7 +13,7 @@ namespace PepperDash.Essentials.Plugin
 	/// Rename the class to match the device plugin being developed
 	/// </remarks>
 	/// <example>
-	/// "EssentialsPluginFactoryTemplate" renamed to "MyCrestronDeviceFactory"
+	/// "MakeModelCrestronDeviceFactory" renamed to "CrestronTst1080DeviceFactory"
 	/// </example>
 	public class MakeModelCrestronDeviceFactory : EssentialsPluginDeviceFactory<MakeModelCrestronDevice>
 	{
@@ -26,11 +26,11 @@ namespace PepperDash.Essentials.Plugin
 		/// <example>
 		/// Set the minimum Essentials Framework Version
 		/// <code>
-		/// MinimumEssentialsFrameworkVersion = "1.6.4;
+		/// MinimumEssentialsFrameworkVersion = "2.0.0";
 		/// </code>
 		/// In the constructor we initialize the list with the typenames that will build an instance of this device
 		/// <code>
-		/// TypeNames = new List<string>() { "SamsungMdc", "SamsungMdcDisplay" };
+		/// TypeNames = new List<string>() { "crestronTst1080" };
 		/// </code>
 		/// </example>
 		public MakeModelCrestronDeviceFactory()
@@ -45,7 +45,7 @@ namespace PepperDash.Essentials.Plugin
 		}
 
 		/// <summary>
-		/// Builds and returns an instance of EssentialsPluginTemplateCrestronDevice
+		/// Builds and returns an instance of MakeModelCrestronDevice
 		/// </summary>
 		/// <param name="dc">device configuration</param>
 		/// <returns>plugin device or null</returns>
@@ -60,7 +60,7 @@ namespace PepperDash.Essentials.Plugin
 			Debug.LogDebug("[{key}] Factory Attempting to create new device from type: {type}", dc.Key, dc.Type);
 
 			// get the plugin device properties configuration object & check for null 
-			var propertiesConfig = dc.Properties.ToObject<MakeModelConfig>();
+			var propertiesConfig = dc.Properties.ToObject<MakeModelPropertiesConfig>();
 			if (propertiesConfig == null)
 			{
 				Debug.LogWarning("[{key}] Factory: failed to read properties config for {name}", dc.Key, dc.Name);

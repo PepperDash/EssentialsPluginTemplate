@@ -14,7 +14,7 @@ The guide targets the template's `main` branch as of PR #38 (`784667e`). The [RE
 
 ## Before you start
 
-* The plugin must be a 4-Series-only, SDK-style project (`<Project Sdk="Microsoft.NET.Sdk">`) in `src/`, one level below the repository root. The build targets look for `../README.md` and `../build/ReadmeDocs.cs` relative to `src/`. If the repository still has a 3-Series project, remove it first (see the template's PR #33).
+* The plugin must be a 4-Series-only, SDK-style project (`<Project Sdk="Microsoft.NET.Sdk">`) in `src/`, one level below the repository root. The build targets look for `../README.md`, `../build/ReadmeBadges.cs` and `../build/ReadmeDocs.cs` relative to `src/`. If the repository still has a 3-Series project, remove it first (see the template's PR #33).
 * You need the [.NET SDK](https://dotnet.microsoft.com/download) and Git. `nuget.exe` is no longer required.
 * Work on a branch. Commit the migration with a non-releasing type such as `chore` or `build`, so it does not trigger a version bump.
 
@@ -43,6 +43,7 @@ These files contain nothing plugin-specific. Copy them as-is:
 
 ```
 git checkout template/main -- \
+    build/ReadmeBadges.cs \
     build/ReadmeDocs.cs \
     src/Directory.Build.targets \
     .config/dotnet-tools.json \
@@ -53,6 +54,7 @@ git checkout template/main -- \
 
 | Path | Purpose |
 | --- | --- |
+| `build/ReadmeBadges.cs` | README badge synchronizer, compiled by the build |
 | `build/ReadmeDocs.cs` | Plugin documentation generator, compiled by the build |
 | `src/Directory.Build.targets` | CPLZ packaging, git hook install, README badge and docs targets |
 | `.config/dotnet-tools.json` | Pins the Husky.Net tool |

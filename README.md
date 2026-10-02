@@ -184,6 +184,7 @@ Set `Product` and `RepositoryUrl` in `src/Directory.Build.props`. Shared values 
 | `src/MakeModelBridgeJoinMap.cs` | EISC bridge join map (`MakeModelBridgeJoinMap`) |
 | `src/Directory.Build.props` | Shared version, package and copyright properties |
 | `src/Directory.Build.targets` | CPLZ packaging, git hook install, README badge and docs targets |
+| `build/ReadmeBadges.cs` | README badge synchronizer, compiled by the build |
 | `build/ReadmeDocs.cs` | Plugin documentation generator, compiled by the build |
 | `.husky/` | Commit-msg hook and its linter (`csx/commit-lint.csx`) |
 | `.releaserc.json` | semantic-release configuration |

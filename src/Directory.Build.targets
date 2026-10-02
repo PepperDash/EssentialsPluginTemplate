@@ -231,4 +231,84 @@ public class SyncReadmeBadges : Task
           Condition="'$(_ReadmeDocsEnabled)' == 'true' And '$(ReadmeMode)' == 'Check' And '$(SkipReadmeDocsCheck)' != 'true'">
     <GenerateReadmeDocs ReadmePath="$(ReadmePath)" SourceFiles="@(_ReadmeSource)" CheckOnly="true" />
   </Target>
+
+  <!--
+    Config schema: schemas/<Type>.schema.json for each config class the factories read with ToObject<T>(),
+    generated from the built plugin by the pd-schemagen dotnet tool (.config/dotnet-tools.json).
+    Not part of the normal build: run `dotnet msbuild -t:UpdateConfigSchema`, review the diff, commit it.
+    Checked (build error on drift) when CI=true or -p:ConfigSchemaMode=Check. Opt out: -p:SkipConfigSchemaCheck=true
+    Override the discovered types with -p:ConfigSchemaTypes="AConfig;BConfig". One TargetFramework only (net472 or net8).
+  -->
+  <PropertyGroup>
+    <ConfigSchemaDir Condition="'$(ConfigSchemaDir)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../schemas'))</ConfigSchemaDir>
+    <ConfigSchemaMode Condition="'$(ConfigSchemaMode)' == '' And '$(CI)' == 'true'">Check</ConfigSchemaMode>
+    <ConfigSchemaMode Condition="'$(ConfigSchemaMode)' == ''">Update</ConfigSchemaMode>
+    <_ConfigSchemaRepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))</_ConfigSchemaRepoRoot>
+    <_ConfigSchemaMultiTarget Condition="$(TargetFrameworks.Contains(';'))">true</_ConfigSchemaMultiTarget>
+    <_ConfigSchemaEnabled Condition="'$(ProjectType)' == 'ProgramLibrary' And '$(DesignTimeBuild)' != 'true' And '$(TargetFramework)' != '' And '$(_ConfigSchemaMultiTarget)' != 'true' And '$(SkipConfigSchema)' != 'true'">true</_ConfigSchemaEnabled>
+  </PropertyGroup>
+
+  <UsingTask TaskName="DiscoverConfigTypes" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <SourceFiles ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <Types ParameterType="System.String" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.Linq" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        var pattern = new Regex(@"\.ToObject<\s*([A-Za-z_][A-Za-z0-9_.]*)\s*>\s*\(");
+        Types = string.Join(";", SourceFiles
+            .SelectMany(f => pattern.Matches(System.IO.File.ReadAllText(f.GetMetadata("FullPath"))).Cast<Match>())
+            .Select(m => m.Groups[1].Value)
+            .Distinct()
+            .OrderBy(t => t, System.StringComparer.Ordinal));
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="_ConfigSchemaInputs" DependsOnTargets="_CollectReadmeSources;ResolveReferences">
+    <DiscoverConfigTypes SourceFiles="@(_ReadmeSource)" Condition="'$(ConfigSchemaTypes)' == ''">
+      <Output TaskParameter="Types" PropertyName="_ConfigSchemaTypes" />
+    </DiscoverConfigTypes>
+    <!-- Explicit names must exist; discovered names that are not plugin types (ToObject<string>()) are skipped -->
+    <PropertyGroup>
+      <_ConfigSchemaTypes Condition="'$(ConfigSchemaTypes)' != ''">$(ConfigSchemaTypes)</_ConfigSchemaTypes>
+      <_ConfigSchemaTypesArg Condition="'$(ConfigSchemaTypes)' != ''">--types</_ConfigSchemaTypesArg>
+      <_ConfigSchemaTypesArg Condition="'$(ConfigSchemaTypes)' == ''">--discovered-types</_ConfigSchemaTypesArg>
+    </PropertyGroup>
+    <!-- Essentials is referenced with ExcludeAssets=runtime, so the tool resolves it from the reference folders -->
+    <ItemGroup>
+      <_ConfigSchemaReference Include="@(ReferencePath)" Condition="'%(ReferencePath.FrameworkReferenceName)' == '' And !$([System.String]::Copy('%(ReferencePath.FullPath)').ToLowerInvariant().Contains('microsoft.netframework.referenceassemblies'))" />
+      <_ConfigSchemaProbeDir Include="$([System.IO.Path]::GetDirectoryName('%(_ConfigSchemaReference.FullPath)'))" />
+    </ItemGroup>
+    <RemoveDuplicates Inputs="@(_ConfigSchemaProbeDir)">
+      <Output TaskParameter="Filtered" ItemName="_ConfigSchemaProbe" />
+    </RemoveDuplicates>
+    <PropertyGroup>
+      <_ConfigSchemaCommand>dotnet tool run pd-schemagen -- --assembly &quot;$(TargetPath)&quot; $(_ConfigSchemaTypesArg) &quot;$(_ConfigSchemaTypes)&quot; --out &quot;$(ConfigSchemaDir)&quot; --probe &quot;@(_ConfigSchemaProbe)&quot;</_ConfigSchemaCommand>
+    </PropertyGroup>
+    <Message Importance="Normal" Text="config-schema: no ToObject&lt;T&gt;() config types found; skipping" Condition="'$(_ConfigSchemaTypes)' == ''" />
+  </Target>
+
+  <Target Name="_WarnConfigSchemaMultiTarget" BeforeTargets="UpdateConfigSchema;CheckConfigSchema"
+          Condition="'$(_ConfigSchemaMultiTarget)' == 'true' And '$(ProjectType)' == 'ProgramLibrary' And '$(TargetFramework)' != '' And '$(SkipConfigSchema)' != 'true'">
+    <Warning Text="config-schema: multi-targeting ($(TargetFrameworks)) is not supported; set a single TargetFramework (net472 or net8). Skipped." />
+  </Target>
+
+  <!-- Skipped for projects that do not own a config schema (e.g. test projects), so it can be run against the solution -->
+  <Target Name="UpdateConfigSchema" DependsOnTargets="Build;_ConfigSchemaInputs" Condition="'$(_ConfigSchemaEnabled)' == 'true'">
+    <Exec Command="$(_ConfigSchemaCommand)" WorkingDirectory="$(_ConfigSchemaRepoRoot)" Condition="'$(_ConfigSchemaTypes)' != ''" />
+  </Target>
+
+  <Target Name="CheckConfigSchema" AfterTargets="Build" DependsOnTargets="_ConfigSchemaInputs"
+          Condition="'$(_ConfigSchemaEnabled)' == 'true' And '$(ConfigSchemaMode)' == 'Check' And '$(SkipConfigSchemaCheck)' != 'true'">
+    <!-- InstallGitHooks (which restores tools locally) does not run in CI -->
+    <Exec Command="dotnet tool restore" WorkingDirectory="$(_ConfigSchemaRepoRoot)" StandardOutputImportance="Low" Condition="'$(_ConfigSchemaTypes)' != ''" />
+    <Exec Command="$(_ConfigSchemaCommand) --check" WorkingDirectory="$(_ConfigSchemaRepoRoot)" IgnoreExitCode="true" Condition="'$(_ConfigSchemaTypes)' != ''">
+      <Output TaskParameter="ExitCode" PropertyName="_ConfigSchemaExitCode" />
+    </Exec>
+    <Error Condition="'$(_ConfigSchemaExitCode)' == '3'" Text="config-schema: schemas/ is out of date. Run the 'Generate config schema' task (dotnet msbuild -t:UpdateConfigSchema) and commit the result, or pass -p:SkipConfigSchemaCheck=true." />
+    <Error Condition="'$(_ConfigSchemaExitCode)' != '' And '$(_ConfigSchemaExitCode)' != '0' And '$(_ConfigSchemaExitCode)' != '3'" Text="config-schema: pd-schemagen failed (exit $(_ConfigSchemaExitCode)); see the output above." />
+  </Target>
 </Project>

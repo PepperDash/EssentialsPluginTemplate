@@ -1,0 +1,421 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "MakeModelPropertiesConfig",
+  "type": "object",
+  "properties": {
+    "control": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/definitions/EssentialsControlPropertiesConfig"
+        }
+      ]
+    },
+    "pollTimeMs": {
+      "type": "integer",
+      "format": "int64"
+    },
+    "warningTimeoutMs": {
+      "type": "integer",
+      "format": "int64"
+    },
+    "errorTimeoutMs": {
+      "type": "integer",
+      "format": "int64"
+    },
+    "DeviceDictionary": {
+      "type": [
+        "null",
+        "object"
+      ],
+      "additionalProperties": {
+        "$ref": "#/definitions/MakeModelPropertiesConfigDictionary"
+      }
+    }
+  },
+  "definitions": {
+    "EssentialsControlPropertiesConfig": {
+      "type": "object",
+      "description": "Represents a EssentialsControlPropertiesConfig",
+      "properties": {
+        "method": {
+          "description": "The method of control",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/EControlMethod"
+            }
+          ]
+        },
+        "controlPortDevKey": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "The key of the device that contains the control port"
+        },
+        "controlPortNumber": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "The number of the control port on the device specified by ControlPortDevKey"
+        },
+        "controlPortName": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "The name of the control port on the device specified by ControlPortDevKey"
+        },
+        "tcpSshProperties": {
+          "description": "Properties for ethernet based communications",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/TcpSshPropertiesConfig"
+            }
+          ]
+        },
+        "irFile": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "The filename and path for the IR file"
+        },
+        "ipId": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "The IpId of a Crestron device"
+        },
+        "endOfLineChar": {
+          "type": "string",
+          "description": "Char indicating end of line"
+        },
+        "endOfLineString": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "Defaults to Environment.NewLine;"
+        },
+        "deviceReadyResponsePattern": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "Indicates "
+        },
+        "roomId": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "Used when communcating to programs running in VC-4"
+        },
+        "comParams": {
+          "description": "Gets or sets the ComParams",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/ComPortSpec"
+            }
+          ]
+        },
+        "cresnetId": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "Gets or sets the CresnetId"
+        },
+        "infinetId": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "Gets or sets the InfinetId"
+        }
+      }
+    },
+    "EControlMethod": {
+      "type": "string",
+      "description": "Crestron Control Methods for a comm object",
+      "anyOf": [
+        {
+          "enum": [
+            "None",
+            "Com",
+            "IpId",
+            "IpidTcp",
+            "IR",
+            "Ssh",
+            "Tcpip",
+            "Telnet",
+            "Cresnet",
+            "Cec",
+            "Udp",
+            "Http",
+            "Https",
+            "Ws",
+            "Wss",
+            "SecureTcpIp",
+            "ComBridge",
+            "InfinetEx",
+            "UdpClient"
+          ]
+        },
+        {
+          "pattern": "^([Nn][Oo][Nn][Ee]|[Cc][Oo][Mm]|[Ii][Pp][Ii][Dd]|[Ii][Pp][Ii][Dd][Tt][Cc][Pp]|[Ii][Rr]|[Ss][Ss][Hh]|[Tt][Cc][Pp][Ii][Pp]|[Tt][Ee][Ll][Nn][Ee][Tt]|[Cc][Rr][Ee][Ss][Nn][Ee][Tt]|[Cc][Ee][Cc]|[Uu][Dd][Pp]|[Hh][Tt][Tt][Pp]|[Hh][Tt][Tt][Pp][Ss]|[Ww][Ss]|[Ww][Ss][Ss]|[Ss][Ee][Cc][Uu][Rr][Ee][Tt][Cc][Pp][Ii][Pp]|[Cc][Oo][Mm][Bb][Rr][Ii][Dd][Gg][Ee]|[Ii][Nn][Ff][Ii][Nn][Ee][Tt][Ee][Xx]|[Uu][Dd][Pp][Cc][Ll][Ii][Ee][Nn][Tt])$"
+        }
+      ]
+    },
+    "TcpSshPropertiesConfig": {
+      "type": "object",
+      "description": "Represents a TcpSshPropertiesConfig",
+      "required": [
+        "address",
+        "port"
+      ],
+      "properties": {
+        "address": {
+          "type": "string",
+          "description": "Address to connect to"
+        },
+        "port": {
+          "type": "integer",
+          "description": "Port to connect to",
+          "format": "int32"
+        },
+        "username": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "Username credential"
+        },
+        "password": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "Gets or sets the Password"
+        },
+        "bufferSize": {
+          "type": "integer",
+          "description": "Defaults to 32768",
+          "format": "int32"
+        },
+        "autoReconnect": {
+          "type": "boolean",
+          "description": "Gets or sets the AutoReconnect"
+        },
+        "autoReconnectIntervalMs": {
+          "type": "integer",
+          "description": "Gets or sets the AutoReconnectIntervalMs",
+          "format": "int32"
+        },
+        "disableSshEcho": {
+          "type": "boolean",
+          "description": "When true, turns off echo for the SSH session"
+        }
+      }
+    },
+    "ComPortSpec": {
+      "type": "object",
+      "description": "Structure that can easily be used to set all the settings of a com port at once. ",
+      "properties": {
+        "baudRate": {
+          "description": "Property to set the rate at which the serial data will be transmitted and received at.",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/EComBaudRates"
+            }
+          ]
+        },
+        "dataBits": {
+          "description": "Set the number of databits in each serial packet.",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/EComDataBits"
+            }
+          ]
+        },
+        "parity": {
+          "description": "Set the parity of the bits in the serial packets.",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/EComParityType"
+            }
+          ]
+        },
+        "stopBits": {
+          "description": "Set the number of stop bits used.",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/EComStopBits"
+            }
+          ]
+        },
+        "protocol": {
+          "description": "Set the Serial protocol the port will use.",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/EComProtocolType"
+            }
+          ]
+        },
+        "hardwareHandshake": {
+          "description": "Set the hardware handshaking mode of the port.",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/EComHardwareHandshakeType"
+            }
+          ]
+        },
+        "softwareHandshake": {
+          "description": "Set the software handshaking mode of the port.",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/EComSoftwareHandshakeType"
+            }
+          ]
+        },
+        "reportCTSChanges": {
+          "type": "boolean",
+          "description": "Indicate to the driver to report CTS state changes."
+        },
+        "pacing": {
+          "type": "integer",
+          "description": "Rate that characters are sent in ms. "
+        }
+      }
+    },
+    "EComBaudRates": {
+      "type": "integer",
+      "description": "Enumeration of the com port Baud Rates",
+      "enum": [
+        300,
+        600,
+        1200,
+        1800,
+        2400,
+        3600,
+        4800,
+        7200,
+        9600,
+        14400,
+        19200,
+        28800,
+        38400,
+        57600,
+        115200
+      ]
+    },
+    "EComDataBits": {
+      "type": "integer",
+      "description": "Number of Data bits for the com port",
+      "enum": [
+        7,
+        8
+      ]
+    },
+    "EComParityType": {
+      "type": "string",
+      "description": "Parity type for the com port",
+      "anyOf": [
+        {
+          "enum": [
+            "None",
+            "Even",
+            "Odd",
+            "Mark"
+          ]
+        },
+        {
+          "pattern": "^([Nn][Oo][Nn][Ee]|[Ee][Vv][Ee][Nn]|[Oo][Dd][Dd]|[Mm][Aa][Rr][Kk])$"
+        }
+      ]
+    },
+    "EComStopBits": {
+      "type": "integer",
+      "description": "Number of stop bits for the com Port",
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "EComProtocolType": {
+      "type": "string",
+      "description": "Protocol for the com ports",
+      "anyOf": [
+        {
+          "enum": [
+            "RS232",
+            "RS422",
+            "RS485"
+          ]
+        },
+        {
+          "pattern": "^([Rr][Ss]232|[Rr][Ss]422|[Rr][Ss]485)$"
+        }
+      ]
+    },
+    "EComHardwareHandshakeType": {
+      "type": "string",
+      "description": "Hardware Handshake type for the com port",
+      "anyOf": [
+        {
+          "enum": [
+            "None",
+            "RTS",
+            "CTS",
+            "RTSCTS"
+          ]
+        },
+        {
+          "pattern": "^([Nn][Oo][Nn][Ee]|[Rr][Tt][Ss]|[Cc][Tt][Ss]|[Rr][Tt][Ss][Cc][Tt][Ss])$"
+        }
+      ]
+    },
+    "EComSoftwareHandshakeType": {
+      "type": "string",
+      "description": "Software Handshake type for the com port",
+      "anyOf": [
+        {
+          "enum": [
+            "None",
+            "XON",
+            "XONT",
+            "XONR"
+          ]
+        },
+        {
+          "pattern": "^([Nn][Oo][Nn][Ee]|[Xx][Oo][Nn]|[Xx][Oo][Nn][Tt]|[Xx][Oo][Nn][Rr])$"
+        }
+      ]
+    },
+    "MakeModelPropertiesConfigDictionary": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": [
+            "null",
+            "string"
+          ]
+        },
+        "value": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

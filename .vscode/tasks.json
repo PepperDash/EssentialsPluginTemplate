@@ -43,6 +43,17 @@
         "-t:UpdateReadmeDocs"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Generate config schema",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "msbuild",
+        "-nologo",
+        "-t:UpdateConfigSchema"
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

@@ -8,6 +8,13 @@
         "husky"
       ],
       "rollForward": false
+    },
+    "pepperdash.essentials.schemagen": {
+      "version": "0.1.0",
+      "commands": [
+        "pd-schemagen"
+      ],
+      "rollForward": false
     }
   }
 }

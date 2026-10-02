@@ -17,6 +17,8 @@ This README follows the [Diataxis](https://diataxis.fr/) structure:
 * [Explanation](#explanation) - how the template and its automation work, and why
 * [Plugin Documentation](#plugin-documentation) - the generated documentation of this plugin
 
+Have a plugin created from an earlier version of the template? See [MIGRATION.md](MIGRATION.md) to bring it up to date.
+
 ## Tutorial
 
 In this tutorial you create a plugin for a fictional serial/TCP display, the "Samsung MDC", from the template, build it, document it and commit it. It takes about 15 minutes. You need the [.NET SDK](https://dotnet.microsoft.com/download), Git, and Visual Studio or VS Code.
@@ -80,12 +82,16 @@ You now have a building, documented plugin. Next, work through [Rename the templ
 
 ## How-to guides
 
+### Migrate an existing plugin
+
+To bring a plugin repository created from an earlier version of this template up to date with the current build automation, follow [MIGRATION.md](MIGRATION.md).
+
 ### Rename the template
 
 Every name to replace is a form of "Make Model"; the [placeholder names](#placeholder-names) table lists each form and where it appears. Search the repository for `MakeModel`, `make-model`, `Make.Model` and `Make Model`, then:
 
 1. Rename the solution and project files (`epi-make-model.4Series.sln`, `src/epi-make-model.4Series.csproj`, and the project path inside the `.sln`), the namespace and the classes. The XML `remarks` and `example` tags on each class show the intended rename, for example `MakeModelDevice` to `SamsungMdcDevice`.
-2. Delete the device categories and factories the plugin does not need.
+2. Delete the device categories and factories the plugin does not need, and `MIGRATION.md`.
 3. In each factory, set `MinimumEssentialsFrameworkVersion` and `TypeNames`.
 4. Update `MakeModelPropertiesConfig` and `MakeModelBridgeJoinMap` for the plugin's configuration and joins.
 5. Update the [package properties](#package-properties).
@@ -183,6 +189,7 @@ Set `Product` and `RepositoryUrl` in `src/Directory.Build.props`. Shared values 
 | `.releaserc.json` | semantic-release configuration |
 | `.github/workflows/EssentialsPlugins-builds-caller.yml` | Build and release workflow |
 | `.github/skills/update-readme-docs/` | Copilot skill that regenerates and reviews the plugin documentation |
+| `MIGRATION.md` | Steps to update a plugin created from an earlier template; delete it from new plugins |
 
 ### Placeholder names
 
@@ -385,6 +392,7 @@ The sections below are generated from the source code; see [Regenerate the plugi
 <!-- START Public Methods -->
 ### Public Methods
 
+- public void MyNewPublicMethod(bool state, int value, string message)
 - public void SendText(string text)
 - public void SendBytes(byte[] bytes)
 - public void Poll()
@@ -404,5 +412,7 @@ The sections below are generated from the source code; see [Regenerate the plugi
 <!-- END Int Feedbacks -->
 
 <!-- START String Feedbacks -->
+### String Feedbacks
 
+- DeviceNameFeedback
 <!-- END String Feedbacks -->

@@ -25,9 +25,26 @@ namespace PepperDash.Essentials.Plugins.MakeModel
 		/// In order to do so, you will need the username and password in the "tcpSshProperties" object.
 		/// </remarks>
 		/// <example>
+		/// TCP/IP (used for the README Config Example)
 		/// <code>
 		/// "control": {
 		///		"method": "tcpIp",
+		///		"tcpSshProperties": {
+		///			"address": "172.22.0.101",
+		///			"port": 23,
+		///			"username": "admin",
+		///			"password": "password",
+		///			"autoReconnect": true,
+		///			"autoReconnectIntervalMs": 10000
+		///		}
+		///	}
+		/// </code>
+		/// </example>
+		/// <example>
+		/// RS-232 on a processor COM port
+		/// <code>
+		/// "control": {
+		///		"method": "com",
 		///		"controlPortDevKey": "processor",
 		///		"controlPortNumber": 1,
 		///		"comParams": {
@@ -38,14 +55,6 @@ namespace PepperDash.Essentials.Plugins.MakeModel
 		///			"protocol": "RS232",
 		///			"hardwareHandshake": "None",
 		///			"softwareHandshake": "None"
-		///		},
-		///		"tcpSshProperties": {
-		///			"address": "172.22.0.101",
-		///			"port": 23,
-		///			"username": "admin",
-		///			"password": "password",
-		///			"autoReconnect": true,
-		///			"autoReconnectIntervalMs": 10000
 		///		}
 		///	}
 		/// </code>
@@ -65,7 +74,7 @@ namespace PepperDash.Essentials.Plugins.MakeModel
 		/// <example>
 		/// <code>
 		/// "properties": {
-		///		"polltimeMs": 30000
+		///		"pollTimeMs": 30000
 		/// }
 		/// </code>
 		/// </example>
@@ -119,21 +128,11 @@ namespace PepperDash.Essentials.Plugins.MakeModel
 		/// <example>
 		/// <code>
 		/// "properties": {
-		///		"presets": {
-		///			"preset1": {
-		///				"enabled": true,
-		///				"name": "Preset 1"
+		///		"DeviceDictionary": {
+		///			"item1": {
+		///				"name": "Item 1 Name",
+		///				"value": 1
 		///			}
-		///		}
-		/// }
-		/// </code>
-		/// </example>
-		/// <example>
-		/// <code>
-		/// "properties": {
-		///		"inputNames": {
-		///			"input1": "Input 1",
-		///			"input2": "Input 2"		
 		///		}
 		/// }
 		/// </code>
@@ -163,10 +162,10 @@ namespace PepperDash.Essentials.Plugins.MakeModel
 	/// <example>
 	/// <code>
 	/// "properties": {
-	///		"dictionary": {
+	///		"DeviceDictionary": {
 	///			"item1": {
 	///				"name": "Item 1 Name",
-	///				"value": "Item 1 Value"
+	///				"value": 1
 	///			}
 	///		}
 	/// }

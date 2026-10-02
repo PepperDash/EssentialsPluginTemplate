@@ -7,6 +7,9 @@
 // - it is deterministic: source files are read in sorted folder order and each file's Supported Types
 //   keep their declared order (metadata.py used os.walk order and an unordered set)
 // - each distinct Minimum Essentials Framework Version is listed once, including several in one file
+// - the Config Example is always regenerated, even with <!-- SKIP -->; a property's value comes from the
+//   first <example><code> block on it that contains its JSON name (pollTimeMs, warningTimeoutMs and
+//   errorTimeoutMs default to 30000, 180000 and 300000), and key/name/group are realistic
 // - join access (R, W or R/W) follows JoinCapabilities (metadata.py listed every join as R)
 // - a join map is also found by its class declaration when its file is not named <ClassName>.cs
 // - factories are recognized by their Essentials base class, whatever they are named
@@ -154,7 +157,7 @@ public static class ReadmeDocs
         }
 
         readme = UpdateSection(readme, "Minimum Essentials Framework Versions", MarkdownList(minimumVersions, "Minimum Essentials Framework Versions"));
-        if (configExample.Length > 0) readme = UpdateSection(readme, "Config Example", configExample);
+        if (configExample.Length > 0) readme = UpdateSection(readme, "Config Example", configExample, honorSkip: false);
         readme = UpdateSection(readme, "Supported Types", MarkdownList(supportedTypes, "Supported Types"));
         readme = UpdateSection(readme, "Join Maps", JoinMapChart(joins));
         // Base Classes and Interfaces Implemented bodies are replaced by the post-processing below
@@ -352,6 +355,8 @@ public static class ReadmeDocs
     {
         public string JsonName;
         public string Type;
+        /// <summary>Value from the property's &lt;example&gt; block, or null to generate one from Type.</summary>
+        public object Example;
     }
 
     private class ClassDefs
@@ -385,16 +390,58 @@ public static class ReadmeDocs
                 foreach (Match prop in PropertyPattern.Matches(body))
                 {
                     var json = JsonPropertyPattern.Match(prop.Value);
+                    var jsonName = json.Success ? json.Groups[1].Value : prop.Groups[2].Value;
                     properties.Add(new PropertyDef
                     {
-                        JsonName = json.Success ? json.Groups[1].Value : prop.Groups[2].Value,
+                        JsonName = jsonName,
                         Type = prop.Groups[1].Value.Trim(),
+                        Example = ExampleValue(DocComment(body, prop.Index), jsonName),
                     });
                 }
                 defs[classMatch.Groups[1].Value] = properties;
             }
         }
         return defs;
+    }
+
+    private static readonly Regex ExampleCodePattern = new Regex(@"<example>(?:(?!</example>).)*?<code>(.*?)</code>", RegexOptions.Singleline);
+
+    // The /// lines directly above a member, without the slashes
+    private static string DocComment(string body, int memberIndex)
+    {
+        var lines = body.Substring(0, memberIndex).Split('\n');
+        var doc = new List<string>();
+        for (var i = lines.Length - 1; i >= 0; i--)
+        {
+            var line = lines[i].Trim();
+            if (line.StartsWith("///", StringComparison.Ordinal)) doc.Insert(0, line.Substring(3));
+            else if (line.Length > 0 || doc.Count > 0) break;
+        }
+        return string.Join("\n", doc);
+    }
+
+    // The value of jsonName in the first <example><code> block that contains it, e.g.
+    // "control": { ... } or "properties": { "pollTimeMs": 30000 }
+    private static object ExampleValue(string doc, string jsonName)
+    {
+        foreach (Match m in ExampleCodePattern.Matches(doc))
+        {
+            object parsed;
+            if (!Json.TryParse("{" + m.Groups[1].Value + "}", out parsed)) continue;
+            var queue = new Queue<object>();
+            queue.Enqueue(parsed);
+            while (queue.Count > 0)
+            {
+                var obj = queue.Dequeue() as Json.Object;
+                if (obj == null) continue;
+                foreach (var item in obj.Items)
+                {
+                    if (item.Key == jsonName) return item.Value;
+                    queue.Enqueue(item.Value);
+                }
+            }
+        }
+        return null;
     }
 
     private static string ClassBody(string content, int start)
@@ -415,14 +462,22 @@ public static class ReadmeDocs
         var typeName = configClass.Substring(0, Math.Max(0, configClass.Length - 6));
         if (!supportedTypes.Contains(typeName) && supportedTypes.Count > 0) typeName = supportedTypes[0];
         var config = new Json.Object();
-        config.Set("key", "GeneratedKey");
+        config.Set("key", "device-1");
         config.Set("uid", 1);
-        config.Set("name", "GeneratedName");
+        config.Set("name", "Example Device");
         config.Set("type", typeName);
-        config.Set("group", "Group");
+        config.Set("group", "pluginDevices");
         config.Set("properties", SampleValue(configClass, defs, new HashSet<string>()));
         return config;
     }
+
+    // Values used when a property with one of these JSON names has no <example> value of its own
+    private static readonly Dictionary<string, object> DefaultValues = new Dictionary<string, object>
+    {
+        { "pollTimeMs", new Json.Number("30000") },
+        { "warningTimeoutMs", new Json.Number("180000") },
+        { "errorTimeoutMs", new Json.Number("300000") },
+    };
 
     private static readonly string[] CollectionPrefixes = { "List<", "IList<", "IEnumerable<", "ObservableCollection<" };
 
@@ -452,7 +507,12 @@ public static class ReadmeDocs
             if (processing.Contains(type)) return new Json.Object();
             processing.Add(type);
             var obj = new Json.Object();
-            foreach (var prop in defs[type]) obj.Set(prop.JsonName, SampleValue(prop.Type, defs, processing));
+            foreach (var prop in defs[type])
+            {
+                object value;
+                if (prop.Example == null && DefaultValues.TryGetValue(prop.JsonName, out value)) { obj.Set(prop.JsonName, value); continue; }
+                obj.Set(prop.JsonName, prop.Example ?? SampleValue(prop.Type, defs, processing));
+            }
             processing.Remove(type);
             return obj;
         }
@@ -467,14 +527,14 @@ public static class ReadmeDocs
 
     // ---------------------------------------------------------------- README sections
 
-    private static string UpdateSection(string readme, string title, string content)
+    private static string UpdateSection(string readme, string title, string content, bool honorSkip = true)
     {
         var start = "<!-- START " + title + " -->";
         var end = "<!-- END " + title + " -->";
         var match = Regex.Match(readme, Regex.Escape(start) + "(.*?)" + Regex.Escape(end), RegexOptions.Singleline | RegexOptions.IgnoreCase);
         if (match.Success)
         {
-            if (match.Groups[1].Value.Contains("<!-- SKIP -->")) return readme;
+            if (honorSkip && match.Groups[1].Value.Contains("<!-- SKIP -->")) return readme;
             return readme.Substring(0, match.Index) + start + "\n" + content.TrimEnd() + "\n" + end + readme.Substring(match.Index + match.Length);
         }
         if (!readme.EndsWith("\n", StringComparison.Ordinal)) readme += "\n";
@@ -515,8 +575,7 @@ public static class ReadmeDocs
         return null;
     }
 
-    // Applied even to <!-- SKIP --> sections, so "type" always follows the factories: the unused "uid"
-    // is removed and "type" is set
+    // The unused "uid" is removed and "type" follows the factories
     private static string FixConfigExample(string readme, string configType)
     {
         var section = Regex.Match(readme, @"(?s)<!-- START Config Example -->.*?<!-- END Config Example -->");
@@ -623,7 +682,127 @@ public static class Json
         }
         if (value is bool) return (bool)value ? "true" : "false";
         if (value is int) return ((int)value).ToString(System.Globalization.CultureInfo.InvariantCulture);
+        if (value is Number) return ((Number)value).Text;
+        if (value == null) return "null";
         return Quote((string)value);
+    }
+
+    /// <summary>A number parsed from an example, written back exactly as it was written.</summary>
+    public class Number
+    {
+        public Number(string text) { Text = text; }
+        public string Text { get; private set; }
+    }
+
+    /// <summary>Lenient JSON reader for &lt;example&gt; blocks: allows trailing commas.</summary>
+    public static bool TryParse(string text, out object value)
+    {
+        var index = 0;
+        try
+        {
+            value = ParseValue(text, ref index);
+            SkipWhitespace(text, ref index);
+            return index == text.Length;
+        }
+        catch (FormatException)
+        {
+            value = null;
+            return false;
+        }
+    }
+
+    private static object ParseValue(string text, ref int index)
+    {
+        SkipWhitespace(text, ref index);
+        if (index >= text.Length) throw new FormatException();
+        var c = text[index];
+        if (c == '{')
+        {
+            index++;
+            var obj = new Object();
+            while (true)
+            {
+                SkipWhitespace(text, ref index);
+                if (index < text.Length && text[index] == '}') { index++; return obj; }
+                var key = ParseString(text, ref index);
+                SkipWhitespace(text, ref index);
+                Expect(text, ref index, ':');
+                obj.Set(key, ParseValue(text, ref index));
+                if (!NextItem(text, ref index, '}')) return obj;
+            }
+        }
+        if (c == '[')
+        {
+            index++;
+            var list = new List<object>();
+            while (true)
+            {
+                SkipWhitespace(text, ref index);
+                if (index < text.Length && text[index] == ']') { index++; return list; }
+                list.Add(ParseValue(text, ref index));
+                if (!NextItem(text, ref index, ']')) return list;
+            }
+        }
+        if (c == '"') return ParseString(text, ref index);
+        var literal = Regex.Match(text.Substring(index), @"^(?:true|false|null|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)");
+        if (!literal.Success) throw new FormatException();
+        index += literal.Length;
+        switch (literal.Value)
+        {
+            case "true": return true;
+            case "false": return false;
+            case "null": return null;
+            default: return new Number(literal.Value);
+        }
+    }
+
+    // After an item: true when another follows, false when the container closed
+    private static bool NextItem(string text, ref int index, char close)
+    {
+        SkipWhitespace(text, ref index);
+        if (index < text.Length && text[index] == ',') { index++; return true; }
+        Expect(text, ref index, close);
+        return false;
+    }
+
+    private static string ParseString(string text, ref int index)
+    {
+        Expect(text, ref index, '"');
+        var sb = new StringBuilder();
+        while (index < text.Length && text[index] != '"')
+        {
+            var c = text[index++];
+            if (c != '\\') { sb.Append(c); continue; }
+            if (index >= text.Length) throw new FormatException();
+            var e = text[index++];
+            switch (e)
+            {
+                case 'n': sb.Append('\n'); break;
+                case 'r': sb.Append('\r'); break;
+                case 't': sb.Append('\t'); break;
+                case 'b': sb.Append('\b'); break;
+                case 'f': sb.Append('\f'); break;
+                case 'u':
+                    if (index + 4 > text.Length) throw new FormatException();
+                    sb.Append((char)Convert.ToInt32(text.Substring(index, 4), 16));
+                    index += 4;
+                    break;
+                default: sb.Append(e); break;
+            }
+        }
+        Expect(text, ref index, '"');
+        return sb.ToString();
+    }
+
+    private static void Expect(string text, ref int index, char c)
+    {
+        if (index >= text.Length || text[index] != c) throw new FormatException();
+        index++;
+    }
+
+    private static void SkipWhitespace(string text, ref int index)
+    {
+        while (index < text.Length && char.IsWhiteSpace(text[index])) index++;
     }
 
     // ensure_ascii=True escaping

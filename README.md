@@ -104,17 +104,35 @@ In Visual Studio, the Task List shows every remaining `TODO [ ]` item.
 ### Regenerate the plugin documentation
 
 1. Run `dotnet msbuild -t:UpdateReadmeDocs` from the repo root, or in VS Code run **Terminal > Run Task... > Update README docs**. In Copilot Chat, `/update-readme-docs` runs the target and then reviews the result.
-2. Review `git diff README.md`. Placeholder values such as `SampleString` in the Config Example need replacing (see the next guide).
+2. Review `git diff README.md`. If the Config Example shows placeholders such as `SampleString` or `SampleValue`, add an `<example>` block for that property in the config class (see [Set the Config Example values](#set-the-config-example-values)) and run the target again.
 3. Commit `README.md` with your changes.
 
 ### Edit a generated section by hand
 
 1. Edit the content between the section's `<!-- START name -->` and `<!-- END name -->` markers.
-2. Add `<!-- SKIP -->` on the line after the `<!-- START name -->` marker so later runs leave the section alone. The Config Example is the exception: its `type` and `uid` are always updated (see [Generated documentation sections](#generated-documentation-sections)).
+2. Add `<!-- SKIP -->` on the line after the `<!-- START name -->` marker so later runs leave the section alone.
 
 To hide a section that does not apply, keep its markers with only `<!-- SKIP -->` between them. Deleting the markers does not work; the generator adds them back.
 
-Do not mark Minimum Essentials Framework Versions as `<!-- SKIP -->`, or it stops following version changes.
+Do not mark Minimum Essentials Framework Versions as `<!-- SKIP -->`, or it stops following version changes. The Config Example is always regenerated and ignores `<!-- SKIP -->`; set its values in the config class instead.
+
+### Set the Config Example values
+
+The Config Example takes each property's value from the first `<example>` block on that property whose `<code>` contains the property's JSON name, for example:
+
+```csharp
+/// <example>
+/// <code>
+/// "properties": {
+///     "pollTimeMs": 60000
+/// }
+/// </code>
+/// </example>
+[JsonProperty("pollTimeMs")]
+public long PollTimeMs { get; set; }
+```
+
+Without an example, `pollTimeMs`, `warningTimeoutMs` and `errorTimeoutMs` default to `30000`, `180000` and `300000`, and other properties get placeholders from their C# type. Run `dotnet msbuild -t:UpdateReadmeDocs` after changing an example.
 
 ### Check the README the way CI does
 
@@ -229,14 +247,14 @@ The README targets run only for projects with `ProjectType` `ProgramLibrary`, an
 | Section | Source |
 | --- | --- |
 | Minimum Essentials Framework Versions | Each distinct `MinimumEssentialsFrameworkVersion` value |
-| Config Example | The class whose name ends in `Config` or `ConfigObject` with the most properties. `type` is the first `TypeNames` entry of the first C# file (by file name) that sets `TypeNames`; the unused `uid` property is removed. |
+| Config Example | The class whose name ends in `Config` or `ConfigObject` with the most properties. Values come from each property's `<example>` block (see [Set the Config Example values](#set-the-config-example-values)). `type` is the first `TypeNames` entry of the first C# file (by file name) that sets `TypeNames`; the unused `uid` property is removed. Always regenerated, even with `<!-- SKIP -->`. |
 | Supported Types | Every `TypeNames` entry |
 | Join Maps | Classes deriving from `JoinMapBaseAdvanced`, in any file. Type (RW) is `R`, `W` or `R/W` from each join's `JoinCapabilities` |
 | Base Classes, Interfaces | Base classes and interfaces declared by the plugin's own classes, excluding factories and join maps |
 | Public Methods | Public methods in the project's C# files |
 | Bool, Int and String Feedbacks | Public `BoolFeedback`, `IntFeedback` and `StringFeedback` members |
 
-A section containing `<!-- SKIP -->` is never changed, except that the Config Example's `type` and `uid` are still updated as described above. Factories and join maps are found by their content, so renaming them (for example to `SonyBraviaDeviceFactory`) needs no changes.
+A section containing `<!-- SKIP -->` is never changed, except the Config Example, which is always regenerated. Factories and join maps are found by their content, so renaming them (for example to `SonyBraviaDeviceFactory`) needs no changes.
 
 ### Commit message rules
 
@@ -268,7 +286,7 @@ This README is packed into the plugin's NuGet package, so the badges and the plu
 * Git hooks can be skipped, and a CI job that commits to the repository creates extra commits after review. Generating locally means the change is reviewed with the code that caused it.
 * CI runs the same targets in check mode, so a release cannot be packaged with a README that no longer matches the code.
 
-The badges are rewritten on every build because they are purely mechanical. The plugin documentation is regenerated only when you ask for it, because it needs a review: the Config Example contains placeholder values, and some sections are curated by hand with `<!-- SKIP -->`.
+The badges are rewritten on every build because they are purely mechanical. The plugin documentation is regenerated only when you ask for it, because it needs a review: the Config Example can contain placeholders for properties without an `<example>` block, and some sections are curated by hand with `<!-- SKIP -->`.
 
 CI checks the README only in the release build, which runs when semantic-release finds a new version. Ordinary pushes are not checked.
 
@@ -295,7 +313,6 @@ The sections below are generated from the source code; see [Regenerate the plugi
 <!-- END Minimum Essentials Framework Versions -->
 
 <!-- START Config Example -->
-<!-- SKIP -->
 ### Config Example
 
 ```json
@@ -339,7 +356,6 @@ The sections below are generated from the source code; see [Regenerate the plugi
 <!-- END Supported Types -->
 
 <!-- START Join Maps -->
-<!-- SKIP -->
 ### Join Maps
 
 #### Digitals
@@ -354,12 +370,6 @@ The sections below are generated from the source code; see [Regenerate the plugi
 | Join | Type (RW) | Description |
 | --- | --- | --- |
 | 1 | R | Socket Status |
-
-#### Serials
-
-| Join | Type (RW) | Description |
-| --- | --- | --- |
-| 1 | R | Device Name |
 <!-- END Join Maps -->
 
 <!-- START Base Classes -->
@@ -394,5 +404,5 @@ The sections below are generated from the source code; see [Regenerate the plugi
 <!-- END Int Feedbacks -->
 
 <!-- START String Feedbacks -->
-<!-- SKIP -->
+
 <!-- END String Feedbacks -->

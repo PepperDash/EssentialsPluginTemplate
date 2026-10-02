@@ -140,7 +140,7 @@ MinimumEssentialsFrameworkVersion = "2.42.4";
 
 An expression-bodied property or an assignment that shares a line with other code is not recognized, and the build fails with `PDREADME001`.
 
-The `PepperDashEssentials` `PackageReference` version in the csproj must be the same version or higher, or the build fails with `PDREADME002`.
+The `PepperDashEssentials` `PackageReference` version in the csproj must be the same version or higher, or the build fails with `PDREADME002`. A prerelease of the minimum, such as `3.0.0-rc.11` for `3.0.0`, is allowed with a `PDREADME006` warning until the release is published.
 
 ### Type names
 

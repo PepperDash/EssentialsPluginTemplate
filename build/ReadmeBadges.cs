@@ -45,7 +45,10 @@ public class SyncReadmeBadges : Task
             return false;
         }
 
-        // The factory minimum drives the badge; the referenced package must meet or exceed it
+        // The factory minimum drives the badge; the referenced package must meet or exceed it.
+        // Exception: a prerelease of the minimum (3.0.0-rc.11 for 3.0.0) only warns, because the minimum
+        // always names a release that may not be published yet; the badge then shows the package version.
+        var badgeVersion = minText;
         if (!string.IsNullOrEmpty(EssentialsPackageVersion))
         {
             var pkg = Regex.Match(EssentialsPackageVersion.Trim(), @"^(\d+(?:\.\d+){1,3})(-[^+]+)?(\+.*)?$");
@@ -57,9 +60,15 @@ public class SyncReadmeBadges : Task
             else
             {
                 var pkgVersion = Version.Parse(pkg.Groups[1].Value);
-                // SemVer: a prerelease (2.13.0-beta) is lower than its release (2.13.0)
-                var below = pkgVersion < minVersion || (pkgVersion == minVersion && pkg.Groups[2].Success);
-                if (below)
+                if (pkgVersion == minVersion && pkg.Groups[2].Success)
+                {
+                    var pkgText = pkg.Groups[1].Value + pkg.Groups[2].Value;
+                    Log.LogWarning(null, "PDREADME006", null, ReadmePath, 0, 0, 0, 0,
+                        "PepperDashEssentials package " + EssentialsPackageVersion + " is a prerelease of MinimumEssentialsFrameworkVersion "
+                        + minText + ", which is not published yet; update the PackageReference to " + minText + " once it is released");
+                    badgeVersion = pkgText;
+                }
+                else if (pkgVersion < minVersion)
                 {
                     Error("PDREADME002", "PepperDashEssentials package " + EssentialsPackageVersion
                         + " is lower than MinimumEssentialsFrameworkVersion " + minText
@@ -71,14 +80,15 @@ public class SyncReadmeBadges : Task
 
         string fwLabel, fwMessage;
         var legacy = Regex.Match(TargetFramework, @"^net(\d)(\d)(\d)?$");
-        var modern = Regex.Match(TargetFramework, @"^net(\d+\.\d+)");
+        // net8 and net8.0 are the same TFM; legacy net472 is matched first
+        var modern = Regex.Match(TargetFramework, @"^net(\d+)(?:\.(\d+))?(?:-|$)");
         if (legacy.Success)
         {
             fwLabel = ".NET Framework";
             fwMessage = legacy.Groups[1].Value + "." + legacy.Groups[2].Value
                 + (legacy.Groups[3].Success ? "." + legacy.Groups[3].Value : "");
         }
-        else if (modern.Success) { fwLabel = ".NET"; fwMessage = modern.Groups[1].Value; }
+        else if (modern.Success) { fwLabel = ".NET"; fwMessage = modern.Groups[1].Value + "." + (modern.Groups[2].Success ? modern.Groups[2].Value : "0"); }
         else { fwLabel = ".NET"; fwMessage = TargetFramework; }
 
         var replacements = new[]
@@ -86,7 +96,7 @@ public class SyncReadmeBadges : Task
             new[] { @"!\[\.NET[^\]]*\]\(https://img\.shields\.io/badge/[^)]*\)",
                     "![.NET](" + BadgeUrl(fwLabel, fwMessage, "512BD4") + ")" },
             new[] { @"!\[PepperDash Essentials\]\(https://img\.shields\.io/badge/[^)]*\)",
-                    "![PepperDash Essentials](" + BadgeUrl("PepperDash Essentials", "≥ v" + minText, "blue") + ")" },
+                    "![PepperDash Essentials](" + BadgeUrl("PepperDash Essentials", "≥ v" + badgeVersion, "blue") + ")" },
         };
 
         var original = File.ReadAllText(ReadmePath, utf8);
@@ -116,7 +126,7 @@ public class SyncReadmeBadges : Task
 
         File.WriteAllText(ReadmePath, updated, utf8);
         Log.LogMessage(MessageImportance.High,
-            "badges: README.md updated (" + fwLabel + " " + fwMessage + ", Essentials >= v" + minText + ")");
+            "badges: README.md updated (" + fwLabel + " " + fwMessage + ", Essentials >= v" + badgeVersion + ")");
         return true;
     }
 

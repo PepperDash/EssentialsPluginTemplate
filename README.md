@@ -394,7 +394,6 @@ The sections below are generated from the source code; see [Regenerate the plugi
 <!-- START Public Methods -->
 ### Public Methods
 
-- public void MyNewPublicMethod(bool state, int value, string message)
 - public void SendText(string text)
 - public void SendBytes(byte[] bytes)
 - public void Poll()
@@ -414,7 +413,5 @@ The sections below are generated from the source code; see [Regenerate the plugi
 <!-- END Int Feedbacks -->
 
 <!-- START String Feedbacks -->
-### String Feedbacks
 
-- DeviceNameFeedback
 <!-- END String Feedbacks -->

@@ -41,7 +41,7 @@ public class SyncReadmeBadges : Task
         }
         if (minVersion == null)
         {
-            Error("PDREADME001", "no MinimumEssentialsFrameworkVersion = \"x.y.z\"; assignment found in the project's C# files");
+            Error("PDREADME001", "no MinimumEssentialsFrameworkVersion = \"x.y.z\"; assignment found in the project's C# files (the version must be numeric, never a prerelease string such as 3.0.0-rc.11)");
             return false;
         }
 

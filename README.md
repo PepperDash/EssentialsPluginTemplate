@@ -102,7 +102,7 @@ In Visual Studio, the Task List shows every remaining `TODO [ ]` item.
 
 ### Change the minimum Essentials version
 
-1. Set `MinimumEssentialsFrameworkVersion` in each factory to the lowest Essentials version the plugin is tested against.
+1. Set `MinimumEssentialsFrameworkVersion` in each factory to the lowest Essentials version the plugin is tested against. Use a numeric version such as `3.0.0`, never a prerelease string such as `3.0.0-rc.11`: Essentials parses the minimum with `System.Version`, and a prerelease string silently skips loading the plugin.
 2. Set the `PepperDashEssentials` `PackageReference` version in the csproj to the same version or higher. Before that version is released, reference its prerelease (for example `3.0.0-rc.11` for `3.0.0`); the build warns with `PDREADME006` until you update to the release.
 3. Run `dotnet build`. The `PepperDash Essentials` badge updates; commit `README.md` with the change.
 4. [Regenerate the plugin documentation](#regenerate-the-plugin-documentation) so the Minimum Essentials Framework Versions section matches.
@@ -237,7 +237,7 @@ The README targets run only for projects with `ProjectType` `ProgramLibrary`, an
 
 | Code | Meaning | Fix |
 | --- | --- | --- |
-| `PDREADME001` | No `MinimumEssentialsFrameworkVersion = "x.y.z";` assignment found in the project's C# files | Set it in at least one factory |
+| `PDREADME001` | No `MinimumEssentialsFrameworkVersion = "x.y.z";` assignment found in the project's C# files | Set it in at least one factory. The version must be numeric (`3.0.0`), not a prerelease string like `3.0.0-rc.11` |
 | `PDREADME002` | The `PepperDashEssentials` package version is lower than `MinimumEssentialsFrameworkVersion` | Raise the package version or lower the factory minimum |
 | `PDREADME003` | A badge is missing from `README.md` | Restore the `.NET` and `PepperDash Essentials` badges at the top |
 | `PDREADME004` | The badges are stale (check mode) | Run `dotnet build` and commit `README.md` |

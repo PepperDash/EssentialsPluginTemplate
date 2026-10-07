@@ -37,6 +37,8 @@ namespace PepperDash.Essentials.Plugins.MakeModel
 		{
 			// Set the minimum Essentials Framework Version
 			// TODO [ ] Update the Essentials minimum framework version which this plugin has been tested against
+			// The minimum must be numeric (for example 3.0.0), never a prerelease string such as 3.0.0-rc.11;
+			// Essentials parses it with System.Version, and a prerelease string silently skips loading the plugin.
 			MinimumEssentialsFrameworkVersion = "2.42.4";
 
 			// In the constructor we initialize the list with the typenames that will build an instance of this device

@@ -4,6 +4,8 @@
     "ms-dotnettools.csharp",
     "ms-dotnettools.csdevkit",
     "vivaxy.vscode-conventional-commits",
+    "fernandoescolar.vscode-solution-explorer",
+    "pepperdash.pepperdash-toolkit",
     "mhutchie.git-graph"
   ]
 }

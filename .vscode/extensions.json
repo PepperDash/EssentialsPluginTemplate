@@ -6,6 +6,9 @@
     "vivaxy.vscode-conventional-commits",
     "fernandoescolar.vscode-solution-explorer",
     "pepperdash.pepperdash-toolkit",
+    "alefragnani.bookmarks",
+    "github.vscode-github-actions",
+    "redhat.vscode-yaml",
     "mhutchie.git-graph"
   ]
 }

@@ -379,6 +379,13 @@ The sections below are generated from the source code; see [Regenerate the plugi
 | Join | Type (RW) | Description |
 | --- | --- | --- |
 | 1 | R | Socket Status |
+
+#### Serials
+
+| Join | Type (RW) | Description |
+| --- | --- | --- |
+| 1 | R | Device Name |
+| 2 | R | IP Address |
 <!-- END Join Maps -->
 
 <!-- START Base Classes -->
@@ -389,6 +396,9 @@ The sections below are generated from the source code; see [Regenerate the plugi
 <!-- END Base Classes -->
 
 <!-- START Interfaces Implemented -->
+### Interfaces
+
+- IDeviceInfoProvider
 <!-- END Interfaces Implemented -->
 
 <!-- START Public Methods -->
@@ -397,6 +407,7 @@ The sections below are generated from the source code; see [Regenerate the plugi
 - public void SendText(string text)
 - public void SendBytes(byte[] bytes)
 - public void Poll()
+- public void UpdateDeviceInfo()
 <!-- END Public Methods -->
 
 <!-- START Bool Feedbacks -->
@@ -413,5 +424,7 @@ The sections below are generated from the source code; see [Regenerate the plugi
 <!-- END Int Feedbacks -->
 
 <!-- START String Feedbacks -->
+### String Feedbacks
 
+- IpAddressFeedback
 <!-- END String Feedbacks -->

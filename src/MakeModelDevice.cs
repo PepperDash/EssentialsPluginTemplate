@@ -6,6 +6,7 @@ using PepperDash.Core;
 using PepperDash.Core.Logging;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
+using PepperDash.Essentials.Core.DeviceInfo;
 using PepperDash.Essentials.Core.Queues;
 
 namespace PepperDash.Essentials.Plugins.MakeModel
@@ -19,7 +20,7 @@ namespace PepperDash.Essentials.Plugins.MakeModel
 	/// <example>
 	/// "MakeModelDevice" renamed to "SamsungMdcDevice"
 	/// </example>
-	public class MakeModelDevice : EssentialsBridgeableDevice
+	public class MakeModelDevice : EssentialsBridgeableDevice, IDeviceInfoProvider
 	{
 		/// <summary>
 		/// It is often desirable to store the config
@@ -92,6 +93,11 @@ namespace PepperDash.Essentials.Plugins.MakeModel
 		public IntFeedback StatusFeedback { get; private set; }
 
 		/// <summary>
+		/// Reports the device IP address through the bridge
+		/// </summary>
+		public StringFeedback IpAddressFeedback { get; private set; }
+
+		/// <summary>
 		/// Plugin device constructor for devices that need IBasicCommunication
 		/// </summary>
 		/// <param name="key"></param>
@@ -112,6 +118,14 @@ namespace PepperDash.Essentials.Plugins.MakeModel
 			ConnectFeedback = new BoolFeedback("connect", () => Connect);
 			OnlineFeedback = new BoolFeedback("online", () => commsMonitor.IsOnline);
 			StatusFeedback = new IntFeedback("status", () => (int)commsMonitor.Status);
+			IpAddressFeedback = new StringFeedback("ipAddress", () => DeviceInfo.IpAddress);
+
+			// The IP address comes from the tcpSshProperties in the config.  Serial (RS-232) devices leave it empty.
+			// TODO [ ] Set HostName, MacAddress, SerialNumber and FirmwareVersion in the DeviceInfo as the device reports them
+			DeviceInfo = new DeviceInfo
+			{
+				IpAddress = this.config.Control?.TcpSshProperties?.Address ?? string.Empty
+			};
 
 			this.comms = comms;
 			commsMonitor = new GenericCommunicationMonitor(this, this.comms, this.config.PollTimeMs, this.config.WarningTimeoutMs, this.config.ErrorTimeoutMs, Poll);
@@ -230,6 +244,40 @@ namespace PepperDash.Essentials.Plugins.MakeModel
 		#endregion
 
 
+		#region IDeviceInfoProvider
+
+		/// <summary>
+		/// Network and identity information for the device, shown by Essentials and Mobile Control
+		/// </summary>
+		public DeviceInfo DeviceInfo { get; private set; }
+
+		/// <summary>
+		/// Raised when the DeviceInfo changes
+		/// </summary>
+		public event DeviceInfoChangeHandler DeviceInfoChanged;
+
+		/// <summary>
+		/// Refreshes the DeviceInfo and notifies subscribers and the bridge
+		/// </summary>
+		/// <remarks>
+		/// Called by Essentials when it requests the device info.  Update the DeviceInfo properties here, then raise the change.
+		/// </remarks>
+		public void UpdateDeviceInfo()
+		{
+			// TODO [ ] Refresh the DeviceInfo values from the device as needed for the plugin being developed
+
+			IpAddressFeedback?.FireUpdate();
+
+			var handler = DeviceInfoChanged;
+			if (handler != null)
+			{
+				handler(this, new DeviceInfoEventArgs(DeviceInfo));
+			}
+		}
+
+		#endregion
+
+
 		#region Overrides of EssentialsBridgeableDevice
 
 		/// <summary>
@@ -266,6 +314,7 @@ namespace PepperDash.Essentials.Plugins.MakeModel
 
 			StatusFeedback.LinkInputSig(trilist.UShortInput[joinMap.Status.JoinNumber]);
 			OnlineFeedback.LinkInputSig(trilist.BooleanInput[joinMap.IsOnline.JoinNumber]);
+			IpAddressFeedback.LinkInputSig(trilist.StringInput[joinMap.IpAddress.JoinNumber]);
 
 			UpdateFeedbacks();
 
@@ -284,6 +333,7 @@ namespace PepperDash.Essentials.Plugins.MakeModel
 			ConnectFeedback.FireUpdate();
 			OnlineFeedback.FireUpdate();
 			StatusFeedback.FireUpdate();
+			IpAddressFeedback.FireUpdate();
 		}
 
 		#endregion

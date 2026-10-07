@@ -74,6 +74,7 @@ namespace PepperDash.Essentials.Plugins.MakeModel
 
 		// TODO [ ] Add serial joins below plugin being developed
 
+		[JoinName("DeviceName")]
 		public JoinDataComplete DeviceName = new JoinDataComplete(
 			new JoinData
 			{
@@ -83,6 +84,20 @@ namespace PepperDash.Essentials.Plugins.MakeModel
 			new JoinMetadata
 			{
 				Description = "Device Name",
+				JoinCapabilities = eJoinCapabilities.ToSIMPL,
+				JoinType = eJoinType.Serial
+			});
+
+		[JoinName("IpAddress")]
+		public JoinDataComplete IpAddress = new JoinDataComplete(
+			new JoinData
+			{
+				JoinNumber = 2,
+				JoinSpan = 1
+			},
+			new JoinMetadata
+			{
+				Description = "IP Address",
 				JoinCapabilities = eJoinCapabilities.ToSIMPL,
 				JoinType = eJoinType.Serial
 			});

@@ -24,36 +24,50 @@
   </Target>
 
   <!--
-    README badges: .NET from $(TargetFramework), PepperDash Essentials from the highest
-    MinimumEssentialsFrameworkVersion assignment in the project's C# files (factories can have any name).
-    Rewritten before build locally;
+    README sync, by pd-readme (PepperDash.Essentials.BuildTools.Readme, pinned in .config/dotnet-tools.json).
+    Badges: .NET from $(TargetFramework), PepperDash Essentials from the highest MinimumEssentialsFrameworkVersion
+    assignment in the project's C# files (factories can have any name). Rewritten before build locally;
     checked (build error on drift) when CI=true or -p:ReadmeMode=Check. Opt out: -p:SkipReadmeBadges=true
+    Docs: the START/END marker sections under "Plugin Documentation" (config example, supported types, join maps,
+    feedbacks, public methods). Not part of the normal build: run `dotnet msbuild -t:UpdateReadmeDocs` (or
+    `dotnet pd-readme docs`), review the diff, commit it. Checked like the badges. Opt out: -p:SkipReadmeDocsCheck=true
+    The tool needs the .NET 8 (or later) runtime; it is restored here because InstallGitHooks does not run in CI.
   -->
   <PropertyGroup>
     <ReadmePath Condition="'$(ReadmePath)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../README.md'))</ReadmePath>
     <ReadmeMode Condition="'$(ReadmeMode)' == '' And '$(CI)' == 'true'">Check</ReadmeMode>
     <ReadmeMode Condition="'$(ReadmeMode)' == ''">Update</ReadmeMode>
     <_ReadmeBadgesEnabled Condition="'$(ProjectType)' == 'ProgramLibrary' And '$(DesignTimeBuild)' != 'true' And '$(TargetFramework)' != '' And '$(SkipReadmeBadges)' != 'true' And Exists('$(ReadmePath)')">true</_ReadmeBadgesEnabled>
+    <_ReadmeDocsEnabled Condition="'$(ProjectType)' == 'ProgramLibrary' And '$(DesignTimeBuild)' != 'true' And '$(TargetFramework)' != '' And Exists('$(ReadmePath)')">true</_ReadmeDocsEnabled>
     <_ReadmeBadgesStamp>$(IntermediateOutputPath)readme-badges.stamp</_ReadmeBadgesStamp>
+    <_ReadmeToolManifest>$(MSBuildThisFileDirectory)../.config/dotnet-tools.json</_ReadmeToolManifest>
+    <_ReadmeToolRoot>$(MSBuildThisFileDirectory)..</_ReadmeToolRoot>
+    <_ReadmeArgs>--project "$(MSBuildProjectFullPath)" --readme "$(ReadmePath)"</_ReadmeArgs>
   </PropertyGroup>
 
-  <UsingTask TaskName="SyncReadmeBadges" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
-    <Task>
-      <Code Type="Class" Language="cs" Source="$(MSBuildThisFileDirectory)../build/ReadmeBadges.cs" />
-    </Task>
-  </UsingTask>
+  <!-- The project's own C# files (generated bin/obj sources excluded), with paths relative to the project; only used for incremental inputs -->
+  <Target Name="_CollectReadmeSources">
+    <ItemGroup>
+      <_ReadmeSource Include="@(Compile)" RelPath="$([MSBuild]::MakeRelative('$(MSBuildProjectDirectory)', '%(FullPath)'))" />
+      <_ReadmeSource Remove="@(_ReadmeSource)" Condition="$([System.String]::Copy('%(RelPath)').StartsWith('..')) Or $([System.String]::Copy('%(RelPath)').StartsWith('obj')) Or $([System.String]::Copy('%(RelPath)').StartsWith('bin'))" />
+    </ItemGroup>
+  </Target>
 
   <Target Name="_CollectReadmeBadgeInputs" DependsOnTargets="_CollectReadmeSources">
     <PropertyGroup>
       <_ReadmeEssentialsVersion>@(PackageReference->WithMetadataValue('Identity', 'PepperDashEssentials')->'%(Version)')</_ReadmeEssentialsVersion>
+      <!-- Resolved by MSBuild, so it is right whether TargetFramework comes from the csproj or Directory.Build.props -->
+      <_ReadmeBadgeArgs>$(_ReadmeArgs) --target-framework "$(TargetFramework)"</_ReadmeBadgeArgs>
+      <_ReadmeBadgeArgs Condition="'$(_ReadmeEssentialsVersion)' != ''">$(_ReadmeBadgeArgs) --essentials-version "$(_ReadmeEssentialsVersion)"</_ReadmeBadgeArgs>
     </PropertyGroup>
   </Target>
 
   <Target Name="UpdateReadmeBadges" BeforeTargets="BeforeBuild" DependsOnTargets="_CollectReadmeBadgeInputs"
           Condition="'$(_ReadmeBadgesEnabled)' == 'true' And '$(ReadmeMode)' != 'Check'"
-          Inputs="@(_ReadmeSource);$(MSBuildProjectFullPath);$(MSBuildThisFileFullPath);$(MSBuildThisFileDirectory)../build/ReadmeBadges.cs;$(ReadmePath)"
+          Inputs="@(_ReadmeSource);$(MSBuildProjectFullPath);$(MSBuildThisFileFullPath);$(_ReadmeToolManifest);$(ReadmePath)"
           Outputs="$(_ReadmeBadgesStamp)">
-    <SyncReadmeBadges ReadmePath="$(ReadmePath)" TargetFramework="$(TargetFramework)" EssentialsPackageVersion="$(_ReadmeEssentialsVersion)" SourceFiles="@(_ReadmeSource)" />
+    <Exec Command="dotnet tool restore" WorkingDirectory="$(_ReadmeToolRoot)" StandardOutputImportance="Low" StandardErrorImportance="High" />
+    <Exec Command="dotnet pd-readme badges $(_ReadmeBadgeArgs)" WorkingDirectory="$(_ReadmeToolRoot)" StandardOutputImportance="High" />
     <!-- Touched after the README write: README is both an input and an output -->
     <MakeDir Directories="$(IntermediateOutputPath)" />
     <Touch Files="$(_ReadmeBadgesStamp)" AlwaysCreate="true" />
@@ -64,40 +78,19 @@
 
   <Target Name="CheckReadmeBadges" BeforeTargets="BeforeBuild" DependsOnTargets="_CollectReadmeBadgeInputs"
           Condition="'$(_ReadmeBadgesEnabled)' == 'true' And '$(ReadmeMode)' == 'Check'">
-    <SyncReadmeBadges ReadmePath="$(ReadmePath)" TargetFramework="$(TargetFramework)" EssentialsPackageVersion="$(_ReadmeEssentialsVersion)" SourceFiles="@(_ReadmeSource)" CheckOnly="true" />
-  </Target>
-
-  <!--
-    README docs: the START/END marker sections under "Plugin Documentation" (config example, supported types,
-    join maps, feedbacks, public methods), generated from the project's C# files by build/ReadmeDocs.cs.
-    Not part of the normal build: run `dotnet msbuild -t:UpdateReadmeDocs`, review the diff, commit it.
-    Checked (build error on drift) when CI=true or -p:ReadmeMode=Check. Opt out: -p:SkipReadmeDocsCheck=true
-  -->
-  <PropertyGroup>
-    <_ReadmeDocsEnabled Condition="'$(ProjectType)' == 'ProgramLibrary' And '$(DesignTimeBuild)' != 'true' And '$(TargetFramework)' != '' And Exists('$(ReadmePath)')">true</_ReadmeDocsEnabled>
-  </PropertyGroup>
-
-  <UsingTask TaskName="GenerateReadmeDocs" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
-    <Task>
-      <Code Type="Class" Language="cs" Source="$(MSBuildThisFileDirectory)../build/ReadmeDocs.cs" />
-    </Task>
-  </UsingTask>
-
-  <!-- The project's own C# files (generated bin/obj sources excluded), with paths relative to the project -->
-  <Target Name="_CollectReadmeSources">
-    <ItemGroup>
-      <_ReadmeSource Include="@(Compile)" RelPath="$([MSBuild]::MakeRelative('$(MSBuildProjectDirectory)', '%(FullPath)'))" />
-      <_ReadmeSource Remove="@(_ReadmeSource)" Condition="$([System.String]::Copy('%(RelPath)').StartsWith('..')) Or $([System.String]::Copy('%(RelPath)').StartsWith('obj')) Or $([System.String]::Copy('%(RelPath)').StartsWith('bin'))" />
-    </ItemGroup>
+    <Exec Command="dotnet tool restore" WorkingDirectory="$(_ReadmeToolRoot)" StandardOutputImportance="Low" StandardErrorImportance="High" />
+    <Exec Command="dotnet pd-readme badges $(_ReadmeBadgeArgs) --check" WorkingDirectory="$(_ReadmeToolRoot)" StandardOutputImportance="High" />
   </Target>
 
   <!-- Skipped for projects that do not own the README (e.g. test projects), so it can be run against the solution -->
-  <Target Name="UpdateReadmeDocs" DependsOnTargets="_CollectReadmeSources" Condition="'$(_ReadmeDocsEnabled)' == 'true'">
-    <GenerateReadmeDocs ReadmePath="$(ReadmePath)" SourceFiles="@(_ReadmeSource)" />
+  <Target Name="UpdateReadmeDocs" Condition="'$(_ReadmeDocsEnabled)' == 'true'">
+    <Exec Command="dotnet tool restore" WorkingDirectory="$(_ReadmeToolRoot)" StandardOutputImportance="Low" StandardErrorImportance="High" />
+    <Exec Command="dotnet pd-readme docs $(_ReadmeArgs)" WorkingDirectory="$(_ReadmeToolRoot)" StandardOutputImportance="High" />
   </Target>
 
-  <Target Name="CheckReadmeDocs" AfterTargets="CheckReadmeBadges" DependsOnTargets="_CollectReadmeSources"
+  <Target Name="CheckReadmeDocs" AfterTargets="CheckReadmeBadges"
           Condition="'$(_ReadmeDocsEnabled)' == 'true' And '$(ReadmeMode)' == 'Check' And '$(SkipReadmeDocsCheck)' != 'true'">
-    <GenerateReadmeDocs ReadmePath="$(ReadmePath)" SourceFiles="@(_ReadmeSource)" CheckOnly="true" />
+    <Exec Command="dotnet tool restore" WorkingDirectory="$(_ReadmeToolRoot)" StandardOutputImportance="Low" StandardErrorImportance="High" />
+    <Exec Command="dotnet pd-readme docs $(_ReadmeArgs) --check" WorkingDirectory="$(_ReadmeToolRoot)" StandardOutputImportance="High" />
   </Target>
 </Project>

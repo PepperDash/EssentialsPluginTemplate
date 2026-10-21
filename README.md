@@ -183,9 +183,8 @@ Set `Product` and `RepositoryUrl` in `src/Directory.Build.props`. Shared values 
 | `src/MakeModelPropertiesConfig.cs` | Device configuration class (`MakeModelPropertiesConfig`): the device's `properties` in the configuration file |
 | `src/MakeModelBridgeJoinMap.cs` | EISC bridge join map (`MakeModelBridgeJoinMap`) |
 | `src/Directory.Build.props` | Shared version, package and copyright properties |
-| `src/Directory.Build.targets` | CPLZ packaging, git hook install, README badge and docs targets |
-| `build/ReadmeBadges.cs` | README badge synchronizer, compiled by the build |
-| `build/ReadmeDocs.cs` | Plugin documentation generator, compiled by the build |
+| `src/Directory.Build.targets` | CPLZ packaging, git hook install, and the targets that run `pd-readme` for the README badges and docs |
+| `.config/dotnet-tools.json` | Pins the tools the build runs: Husky.Net and [`pd-readme`](https://github.com/PepperDash/essentials-build-tools) (README badges and plugin documentation) |
 | `.husky/` | Commit-msg hook and its linter (`csx/commit-lint.csx`) |
 | `.releaserc.json` | semantic-release configuration |
 | `.github/workflows/EssentialsPlugins-builds-caller.yml` | Build and release workflow |
@@ -221,6 +220,8 @@ The template names everything after a fictional "Make Model" device. Replace eac
 | `CheckReadmeDocs` | Before the build when `ReadmeMode` is `Check` | Fails on stale plugin documentation |
 | `InstallGitHooks` | Before restore, unless `CI=true` or `HUSKY=0` | Runs `dotnet tool restore` and `dotnet husky install` |
 
+The four README targets call `dotnet pd-readme` and run `dotnet tool restore` first, including in CI, where `InstallGitHooks` does not run. To use the tool directly, run `dotnet pd-readme badges` or `dotnet pd-readme docs` (add `--check` to verify without writing).
+
 The README targets run only for projects with `ProjectType` `ProgramLibrary`, and never in design-time builds.
 
 ### Build properties
@@ -242,6 +243,7 @@ The README targets run only for projects with `ProjectType` `ProgramLibrary`, an
 | `PDREADME003` | A badge is missing from `README.md` | Restore the `.NET` and `PepperDash Essentials` badges at the top |
 | `PDREADME004` | The badges are stale (check mode) | Run `dotnet build` and commit `README.md` |
 | `PDREADME005` | The plugin documentation is stale (check mode) | Run `dotnet msbuild -t:UpdateReadmeDocs`, review and commit `README.md` |
+| `PDREADME007` | The target framework could not be determined | The build passes `$(TargetFramework)`; when running `pd-readme` by hand, pass `--target-framework <tfm>` |
 | `PDREADME006` (warning) | The `PepperDashEssentials` package is a prerelease of `MinimumEssentialsFrameworkVersion` (for example `3.0.0-rc.11` for `3.0.0`), which is not released yet. The badge shows the package version. | Update the package to the release once it is published |
 
 ### Badges
@@ -277,7 +279,7 @@ The type list follows the shared `checkCommitMessage` workflow in PepperDash/wor
 
 ### Requirements
 
-* [.NET SDK](https://dotnet.microsoft.com/download): building, the git hooks and all README automation. Nothing else is required.
+* [.NET SDK](https://dotnet.microsoft.com/download) (8 or later): building, the git hooks and all README automation. The README tool, `pd-readme`, is a .NET 8 tool restored from nuget.org by the build, so the machine needs the .NET 8 (or later) runtime even for a net472 plugin. Nothing else is required.
 * Visual Studio or VS Code
 * The Essentials libraries come from the `PepperDashEssentials` NuGet package and restore automatically; `nuget.exe` is not required.
 
@@ -301,7 +303,7 @@ CI checks the README only in the release build, which runs when semantic-release
 
 ### The documentation generator
 
-`build/ReadmeDocs.cs` is a C# port of `metadata.py` from [PepperDash/workflow-templates](https://github.com/PepperDash/workflow-templates), which the older `update-readme` workflow runs in CI. It produces the same sections, with these differences: the output order no longer depends on the file system, each Minimum Essentials Framework Version is listed once, a join map is also found when its file is not named after the class, interface names are matched case-sensitively, and Base Classes are listed before Interfaces as plain items. The two implementations are maintained separately.
+`pd-readme docs` ([PepperDash/essentials-build-tools](https://github.com/PepperDash/essentials-build-tools)) is a C# port of `metadata.py` from [PepperDash/workflow-templates](https://github.com/PepperDash/workflow-templates), which the older `update-readme` workflow runs in CI. It produces the same sections, with these differences: the output order no longer depends on the file system, each Minimum Essentials Framework Version is listed once, a join map is also found when its file is not named after the class, interface names are matched case-sensitively, and Base Classes are listed before Interfaces as plain items. The two implementations are maintained separately.
 
 ### Commit messages and versions
 

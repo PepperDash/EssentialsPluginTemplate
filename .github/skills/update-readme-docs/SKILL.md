@@ -9,7 +9,7 @@ Regenerates the marker-delimited documentation sections in `README.md` on the cu
 
 ## Procedure
 
-1. From the repo root, run `dotnet msbuild -t:UpdateReadmeDocs` (the `UpdateReadmeDocs` target in `src/Directory.Build.targets`, implemented in `build/ReadmeDocs.cs`). Requires only the .NET SDK. Do not switch branches.
+1. From the repo root, run `dotnet msbuild -t:UpdateReadmeDocs` (the `UpdateReadmeDocs` target in `src/Directory.Build.targets`, which runs the pinned `pd-readme docs` tool; `dotnet pd-readme docs` works too). Requires the .NET SDK and runtime 8 or later. Do not switch branches.
 2. Read `git diff README.md` and compare each generated section against the source in `src/`:
    - **Minimum Essentials Framework Versions**: one entry per distinct `MinimumEssentialsFrameworkVersion` in the factories; do not edit by hand or mark it `<!-- SKIP -->`, or it stops following version bumps.
    - **Supported Types**: must match every `TypeNames` entry in the plugin's factory classes (any file name).

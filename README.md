@@ -1,7 +1,7 @@
 ![PepperDash Essentials Pluign Logo](/images/essentials-plugin-blue.png)
 
-![PepperDash Essentials](https://img.shields.io/badge/PepperDash%20Essentials-≥%20v2.12.1-blue)
-![.NET](https://img.shields.io/badge/.NET%20Framework-4.7.2-512BD4)
+![PepperDash Essentials](https://img.shields.io/badge/PepperDash%20Essentials-≥%20v3.0.0-blue)
+![.NET](https://img.shields.io/badge/.NET-8-512BD4)
 ![Crestron](https://img.shields.io/badge/Crestron-4--Series-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -30,11 +30,38 @@ After forking this repository into your own GitHub space, you can create a new r
 
 ## Dependencies
 
-The [Essentials](https://github.com/PepperDash/Essentials) libraries are required. They referenced via nuget. You must have nuget.exe installed and in the `PATH` environment variable to use the following command. Nuget.exe is available at [nuget.org](https://dist.nuget.org/win-x86-commandline/latest/nuget.exe).
+* Install the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) and PowerShell 7+ (`pwsh`). `global.json` selects an installed stable .NET 8 SDK, rolling forward to its latest installed feature band/patch.
+* The [Essentials](https://github.com/PepperDash/Essentials) dependency is pinned directly in `src/epi-make-model.4Series.csproj` to **3.0.0-rc.19**, a prerelease, available from [nuget.org](https://www.nuget.org/packages/PepperDashEssentials/3.0.0-rc.19). No authenticated feed is required.
+* The project uses literal `net8`, matching the [release-tagged Essentials v3 project](https://github.com/PepperDash/Essentials/blob/v3.0.0-rc.19/src/PepperDash.Essentials/PepperDash.Essentials.csproj). The .NET 8 SDK resolves this to .NET 8; NuGet uses the canonical `net8.0` asset folder. Keep the `.4Series` solution/project names for existing automation.
+* Deployment requires a .NET 8-capable Crestron 4-Series/VC-4 environment running the matching Essentials v3 runtime. A successful build does not verify firmware compatibility or plugin loading on hardware.
 
 ### Installing Dependencies
 
-Dependencies will be automatically installed when
+Run from the repository root; `dotnet restore` installs the pinned dependencies:
+
+```powershell
+dotnet restore epi-make-model.4Series.sln
+dotnet build epi-make-model.4Series.sln --no-restore --configuration Debug
+dotnet pack src/epi-make-model.4Series.csproj --no-build --configuration Debug
+dotnet build epi-make-model.4Series.sln --no-restore --configuration Release
+dotnet pack src/epi-make-model.4Series.csproj --no-build --configuration Release
+pwsh -NoProfile -File .github/scripts/Test-ReadmeBadges.ps1
+pwsh -NoProfile -File .github/scripts/Update-ReadmeBadges.ps1 -Check
+```
+
+Builds generate a CPLZ and NuGet package in `output/`. The CPLZ includes the plugin output, not host-provided Essentials/Crestron dependencies (`ExcludeAssets=runtime`). Inspect both archives before deployment. `SERIES4` is defined for both configurations.
+
+The local `Validate plugin` workflow runs badge tests/checks and restore/build/pack in Debug and Release with the .NET 8 SDK, without publishing or requiring a semantic-release version. Existing release automation remains separate.
+
+### RC-to-GA follow-up
+
+All three factories use the numeric runtime minimum `3.0.0`, not a prerelease string. The [v3 runtime gate](https://github.com/PepperDash/Essentials/blob/v3.0.0-rc.19/src/PepperDash.Essentials.Core/Global/Global.cs#L233-L270) strips the host version to major/minor/build and parses the factory minimum as `System.Version`: RC19 therefore compares as `3.0.0`. This excludes v2 but cannot distinguish individual v3 RCs. The exact build dependency remains pinned to `3.0.0-rc.19`; verify deployment against that runtime rather than assuming every RC is compatible.
+
+This is an initial prerelease migration, not a promise of automatic updates:
+
+* [ ] When upstream CI publishes the official Essentials v3 NuGet package, verify its availability on nuget.org, then replace the pinned `3.0.0-rc.19` dependency with `3.0.0` (or a verified newer official v3 release).
+* [ ] Restore, build both configurations, run badge regression tests and `-Check`, and pack using the commands above. Regenerate badges if the numeric runtime minimum changes.
+* [ ] Inspect CPLZ/NuGet contents for accidental host dependencies and verify plugin loading, all three example device categories, communications, and bridge feedback on the intended Essentials runtime/hardware before deployment.
 
 ### Instructions for Renaming Solution and Files
 
@@ -49,7 +76,7 @@ This repo uses [Husky.Net](https://alirezanet.github.io/Husky.Net/) to run a `pr
 * `.NET` badge - `TargetFramework` in `src/*.4Series.csproj`
 * `PepperDash Essentials` badge - the highest `MinimumEssentialsFrameworkVersion` in `src/*Factory.cs`
 
-If the badges change, `README.md` is re-staged automatically so the update is part of your commit. A warning is printed if the `PepperDashEssentials` package version in the csproj differs from `MinimumEssentialsFrameworkVersion`.
+If the badges change, `README.md` is re-staged automatically so the update is part of your commit. A warning is printed if the `PepperDashEssentials` package version in the csproj differs from `MinimumEssentialsFrameworkVersion`. With this RC migration, the literal `3.0.0-rc.19` package versus numeric `3.0.0` runtime minimum intentionally triggers that warning; it does not make `-Check` fail when badges are current.
 
 ### Requirements
 

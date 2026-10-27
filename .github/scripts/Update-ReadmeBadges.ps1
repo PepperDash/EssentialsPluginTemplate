@@ -66,7 +66,7 @@ function Get-FrameworkBadge($moniker) {
     if ($legacy.Groups[3].Success) { $parts += $legacy.Groups[3].Value }
     return @{ Label = '.NET Framework'; Message = ($parts -join '.') }
   }
-  $modern = [regex]::Match($moniker, '^net(\d+\.\d+)')
+  $modern = [regex]::Match($moniker, '^net(\d+(?:\.\d+)?)$')
   if ($modern.Success) { return @{ Label = '.NET'; Message = $modern.Groups[1].Value } }
   return @{ Label = '.NET'; Message = $moniker }
 }

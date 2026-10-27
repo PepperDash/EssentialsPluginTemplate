@@ -1,0 +1,72 @@
+name: Validate plugin
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - '*.4Series.sln'
+      - 'global.json'
+      - 'README.md'
+      - '.github/scripts/**'
+      - '.github/workflows/validate.yml'
+  push:
+    paths:
+      - 'src/**'
+      - '*.4Series.sln'
+      - 'global.json'
+      - 'README.md'
+      - '.github/scripts/**'
+      - '.github/workflows/validate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+    env:
+      HUSKY: '0'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '8.0.x'
+      - name: Badge regression tests
+        shell: pwsh
+        run: pwsh -NoProfile -File .github/scripts/Test-ReadmeBadges.ps1
+      - name: Check README badges
+        shell: pwsh
+        run: pwsh -NoProfile -File .github/scripts/Update-ReadmeBadges.ps1 -Check
+      - name: Restore
+        run: dotnet restore epi-make-model.4Series.sln
+      - name: Build
+        run: dotnet build epi-make-model.4Series.sln --no-restore --configuration ${{ matrix.configuration }}
+      - name: Pack
+        run: dotnet pack src/epi-make-model.4Series.csproj --no-build --configuration ${{ matrix.configuration }}
+      - name: Check package contents
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $cplz = Get-Item output/*.cplz
+          $package = Get-Item output/*.nupkg
+          $plugin = [System.IO.Compression.ZipFile]::OpenRead($cplz.FullName)
+          $nuget = [System.IO.Compression.ZipFile]::OpenRead($package.FullName)
+          try {
+            $dlls = @($plugin.Entries | Where-Object { $_.FullName -like '*.dll' })
+            if ($dlls.Count -ne 1 -or $dlls[0].FullName -ne 'epi-make-model.4Series.dll') {
+              throw 'CPLZ must contain only the plugin DLL, not host-provided binaries'
+            }
+            if (-not $nuget.GetEntry('lib/net8.0/epi-make-model.4Series.dll') -or
+                -not $nuget.GetEntry("content/$($cplz.Name)")) {
+              throw 'NuGet package must contain the .NET 8 plugin DLL and CPLZ'
+            }
+          } finally {
+            $plugin.Dispose()
+            $nuget.Dispose()
+          }

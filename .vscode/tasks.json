@@ -42,7 +42,54 @@
         "-nologo",
         "-t:UpdateReadmeDocs"
       ],
+      "problemMatcher": "$msCompile",
+      "dependsOn": "Restore dotnet tools"
+    },
+    {
+      "label": "Update README badges",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "pd-readme",
+        "badges",
+        "--project",
+        "src/epi-make-model.4Series.csproj",
+        "--readme",
+        "README.md"
+      ],
+      "dependsOn": "Restore dotnet tools",
+      "problemMatcher": []
+    },
+    {
+      "label": "Build plugin",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "src/epi-make-model.4Series.csproj",
+        "-nologo"
+      ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Generate schema",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "pd-schemagen",
+        "--source",
+        ".",
+        "--assembly",
+        "src/bin/Debug/net8.0/epi-make-model.4Series.dll",
+        "--out",
+        "output/schema.json"
+      ],
+      "dependsOn": [
+        "Restore dotnet tools",
+        "Build plugin"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
     }
   ]
 }

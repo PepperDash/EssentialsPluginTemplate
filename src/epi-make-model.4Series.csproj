@@ -4,8 +4,8 @@
 	</PropertyGroup>
 	<!-- Plugin-specific values; shared values (Version, Copyright, Company, ...) are in Directory.Build.props -->
 	<PropertyGroup>
-		<TargetFramework>net472</TargetFramework>
-		<RootNamespace>PepperDash.Essentials.Plugins.MakeModel</RootNamespace>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>PepperDash.Essentials.Plugins.Make.Model</RootNamespace>
 		<Deterministic>false</Deterministic>
 		<AssemblyTitle>PepperDash.Essentials.Plugins.Make.Model</AssemblyTitle>
 		<Description>This software is a PepperDash Essentials Plugin for a Make Model device.</Description>
@@ -25,7 +25,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="PepperDashEssentials" Version="2.42.4">
+		<PackageReference Include="PepperDashEssentials" Version="3.0.0-rc.25">
 			<ExcludeAssets>runtime</ExcludeAssets>
 		</PackageReference>
 	</ItemGroup>

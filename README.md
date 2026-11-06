@@ -1,7 +1,7 @@
 ![PepperDash Essentials Plugin Logo](/images/essentials-plugin-blue.png)
 
-![PepperDash Essentials](https://img.shields.io/badge/PepperDash%20Essentials-≥%20v2.42.4-blue)
-![.NET](https://img.shields.io/badge/.NET%20Framework-4.7.2-512BD4)
+![PepperDash Essentials](https://img.shields.io/badge/PepperDash%20Essentials-≥%20v3.0.0--rc.25-blue)
+![.NET](https://img.shields.io/badge/.NET-8.0-512BD4)
 ![Crestron](https://img.shields.io/badge/Crestron-4--Series-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -279,7 +279,7 @@ The type list follows the shared `checkCommitMessage` workflow in PepperDash/wor
 
 ### Requirements
 
-* [.NET SDK](https://dotnet.microsoft.com/download) (8 or later): building, the git hooks and all README automation. The README tool, `pd-readme`, is a .NET 8 tool restored from nuget.org by the build, so the machine needs the .NET 8 (or later) runtime even for a net472 plugin. Nothing else is required.
+* [.NET SDK](https://dotnet.microsoft.com/download) (8 or later): building, the git hooks and all README automation. The README tool, `pd-readme`, is a .NET 8 tool restored from nuget.org by the build, so the machine needs the .NET 8 (or later) runtime even though plugins now target net8.0. Nothing else is required.
 * Visual Studio or VS Code
 * The Essentials libraries come from the `PepperDashEssentials` NuGet package and restore automatically; `nuget.exe` is not required.
 
@@ -320,7 +320,7 @@ The sections below are generated from the source code; see [Regenerate the plugi
 <!-- START Minimum Essentials Framework Versions -->
 ### Minimum Essentials Framework Versions
 
-- 2.42.4
+- 3.0.0
 <!-- END Minimum Essentials Framework Versions -->
 
 <!-- START Config Example -->

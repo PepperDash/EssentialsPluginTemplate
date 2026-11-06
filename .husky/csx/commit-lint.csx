@@ -17,13 +17,21 @@ var gitRevert = new Regex(@"^Revert "".+""$");
 var autosquash = new Regex(@"^(fixup|squash|amend)! ");
 const int MaxHeader = 100;
 
-// git strips '#' comment lines and leading blank lines before storing the message
-// (Husky's script host has no System.Linq reference, hence the loop)
+// The header is the first non-blank line, even if it starts with '#': commits made with -m use
+// whitespace cleanup, which keeps '#' lines, so git would store that line as the subject.
+// '#' lines after the header are skipped (the editor template's comments). Husky's script host
+// has no System.Linq reference, hence the loop.
 var lines = new List<string>();
 foreach (var line in File.ReadAllLines(Args[0]))
 {
-    if (line.StartsWith("#")) continue;
-    if (lines.Count == 0 && string.IsNullOrWhiteSpace(line)) continue;
+    if (lines.Count == 0)
+    {
+        if (string.IsNullOrWhiteSpace(line)) continue;
+    }
+    else if (line.StartsWith("#"))
+    {
+        continue;
+    }
     lines.Add(line);
 }
 

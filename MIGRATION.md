@@ -15,7 +15,7 @@ The guide targets the template's `main` branch as of PR #38 (`784667e`). The [RE
 ## Before you start
 
 * The plugin must be a 4-Series-only, SDK-style project (`<Project Sdk="Microsoft.NET.Sdk">`) in `src/`, one level below the repository root. The build targets look for `../README.md` and `../.config/dotnet-tools.json` relative to `src/`. If the repository still has a 3-Series project, remove it first (see the template's PR #33).
-* You need the [.NET SDK](https://dotnet.microsoft.com/download) (8 or later) and Git. `nuget.exe` is no longer required. The build restores `pd-readme` from nuget.org, so the .NET 8 (or later) runtime must be installed even though plugins now target net8.0.
+* You need the [.NET SDK](https://dotnet.microsoft.com/download) (8 or later) and Git. `nuget.exe` is no longer required. The build restores `pd-readme` from nuget.org, so the .NET 8 runtime must be installed (a newer runtime alone is not enough: the tool is pinned with `rollForward: false`) even though plugins now target net8.0.
 * Work on a branch. Commit the migration with a non-releasing type such as `chore` or `build`, so it does not trigger a version bump.
 
 ```

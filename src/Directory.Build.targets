@@ -31,7 +31,7 @@
     Docs: the START/END marker sections under "Plugin Documentation" (config example, supported types, join maps,
     feedbacks, public methods). Not part of the normal build: run `dotnet msbuild -t:UpdateReadmeDocs` (or
     `dotnet pd-readme docs`), review the diff, commit it. Checked like the badges. Opt out: -p:SkipReadmeDocsCheck=true
-    The tool needs the .NET 8 (or later) runtime; it is restored here because InstallGitHooks does not run in CI.
+    The tool needs the .NET 8 runtime (it does not roll forward to 9 or later); it is restored here because InstallGitHooks does not run in CI.
   -->
   <PropertyGroup>
     <ReadmePath Condition="'$(ReadmePath)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../README.md'))</ReadmePath>
@@ -39,21 +39,12 @@
     <ReadmeMode Condition="'$(ReadmeMode)' == ''">Update</ReadmeMode>
     <_ReadmeBadgesEnabled Condition="'$(ProjectType)' == 'ProgramLibrary' And '$(DesignTimeBuild)' != 'true' And '$(TargetFramework)' != '' And '$(SkipReadmeBadges)' != 'true' And Exists('$(ReadmePath)')">true</_ReadmeBadgesEnabled>
     <_ReadmeDocsEnabled Condition="'$(ProjectType)' == 'ProgramLibrary' And '$(DesignTimeBuild)' != 'true' And '$(TargetFramework)' != '' And Exists('$(ReadmePath)')">true</_ReadmeDocsEnabled>
-    <_ReadmeBadgesStamp>$(IntermediateOutputPath)readme-badges.stamp</_ReadmeBadgesStamp>
     <_ReadmeToolManifest>$(MSBuildThisFileDirectory)../.config/dotnet-tools.json</_ReadmeToolManifest>
     <_ReadmeToolRoot>$(MSBuildThisFileDirectory)..</_ReadmeToolRoot>
     <_ReadmeArgs>--project "$(MSBuildProjectFullPath)" --readme "$(ReadmePath)"</_ReadmeArgs>
   </PropertyGroup>
 
-  <!-- The project's own C# files (generated bin/obj sources excluded), with paths relative to the project; only used for incremental inputs -->
-  <Target Name="_CollectReadmeSources">
-    <ItemGroup>
-      <_ReadmeSource Include="@(Compile)" RelPath="$([MSBuild]::MakeRelative('$(MSBuildProjectDirectory)', '%(FullPath)'))" />
-      <_ReadmeSource Remove="@(_ReadmeSource)" Condition="$([System.String]::Copy('%(RelPath)').StartsWith('..')) Or $([System.String]::Copy('%(RelPath)').StartsWith('obj')) Or $([System.String]::Copy('%(RelPath)').StartsWith('bin'))" />
-    </ItemGroup>
-  </Target>
-
-  <Target Name="_CollectReadmeBadgeInputs" DependsOnTargets="_CollectReadmeSources">
+  <Target Name="_CollectReadmeBadgeInputs" >
     <PropertyGroup>
       <_ReadmeEssentialsVersion>@(PackageReference->WithMetadataValue('Identity', 'PepperDashEssentials')->'%(Version)')</_ReadmeEssentialsVersion>
       <!-- Resolved by MSBuild, so it is right whether TargetFramework comes from the csproj or Directory.Build.props -->
@@ -62,18 +53,11 @@
     </PropertyGroup>
   </Target>
 
+  <!-- Not incremental: a timestamp check misses deleted factories and imported property changes (TargetFramework in Directory.Build.props). The tool is a no-op when the badges are current. -->
   <Target Name="UpdateReadmeBadges" BeforeTargets="BeforeBuild" DependsOnTargets="_CollectReadmeBadgeInputs"
-          Condition="'$(_ReadmeBadgesEnabled)' == 'true' And '$(ReadmeMode)' != 'Check'"
-          Inputs="@(_ReadmeSource);$(MSBuildProjectFullPath);$(MSBuildThisFileFullPath);$(_ReadmeToolManifest);$(ReadmePath)"
-          Outputs="$(_ReadmeBadgesStamp)">
+          Condition="'$(_ReadmeBadgesEnabled)' == 'true' And '$(ReadmeMode)' != 'Check'">
     <Exec Command="dotnet tool restore" WorkingDirectory="$(_ReadmeToolRoot)" StandardOutputImportance="Low" StandardErrorImportance="High" />
     <Exec Command="dotnet pd-readme badges $(_ReadmeBadgeArgs)" WorkingDirectory="$(_ReadmeToolRoot)" StandardOutputImportance="High" />
-    <!-- Touched after the README write: README is both an input and an output -->
-    <MakeDir Directories="$(IntermediateOutputPath)" />
-    <Touch Files="$(_ReadmeBadgesStamp)" AlwaysCreate="true" />
-    <ItemGroup>
-      <FileWrites Include="$(_ReadmeBadgesStamp)" />
-    </ItemGroup>
   </Target>
 
   <Target Name="CheckReadmeBadges" BeforeTargets="BeforeBuild" DependsOnTargets="_CollectReadmeBadgeInputs"

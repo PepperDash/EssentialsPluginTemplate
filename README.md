@@ -240,7 +240,7 @@ The template names everything after a fictional "Make Model" device. Replace eac
 
 | Target | Runs | Effect |
 | --- | --- | --- |
-| `UpdateReadmeBadges` | Before every local build | Rewrites stale `.NET` and `PepperDash Essentials` badges. Incremental. |
+| `UpdateReadmeBadges` | Before every local build | Rewrites stale `.NET` and `PepperDash Essentials` badges. Runs every build; does nothing when they are current. |
 | `CheckReadmeBadges` | Before the build when `ReadmeMode` is `Check` | Fails on stale badges |
 | `UpdateReadmeDocs` | Only when invoked (`dotnet msbuild -t:UpdateReadmeDocs`) | Regenerates the [Plugin Documentation](#plugin-documentation) sections |
 | `CheckReadmeDocs` | Before the build when `ReadmeMode` is `Check` | Fails on stale plugin documentation |
@@ -305,7 +305,7 @@ The type list follows the shared `checkCommitMessage` workflow in PepperDash/wor
 
 ### Requirements
 
-* [.NET SDK](https://dotnet.microsoft.com/download) (8 or later): building, the git hooks and all README automation. The README tool, `pd-readme`, is a .NET 8 tool restored by the build from nuget.org (with the PepperDash GitHub Packages feed as a fallback, if you registered it), so the machine needs the .NET 8 (or later) runtime even though plugins now target net8.0. Nothing else is required.
+* [.NET SDK](https://dotnet.microsoft.com/download) (8 or later): building, the git hooks and all README automation. The README tool, `pd-readme`, is a .NET 8 tool restored by the build from nuget.org (with the PepperDash GitHub Packages feed as a fallback, if you registered it), so the machine needs the .NET 8 runtime (a newer runtime alone is not enough: the tool is pinned with `rollForward: false`) even though plugins now target net8.0. Nothing else is required.
 * Visual Studio or VS Code
 * The Essentials libraries come from the `PepperDashEssentials` NuGet package and restore automatically; `nuget.exe` is not required.
 

@@ -6,9 +6,10 @@ using PepperDash.Core;
 using PepperDash.Core.Logging;
 using PepperDash.Essentials.Core;
 using PepperDash.Essentials.Core.Bridges;
+using PepperDash.Essentials.Core.DeviceInfo;
 using PepperDash.Essentials.Core.Queues;
 
-namespace PepperDash.Essentials.Plugin
+namespace PepperDash.Essentials.Plugins.MakeModel
 {
 	/// <summary>
 	/// Plugin device template for third party devices that use IBasicCommunication
@@ -17,14 +18,14 @@ namespace PepperDash.Essentials.Plugin
 	/// Rename the class to match the device plugin being developed.
 	/// </remarks>
 	/// <example>
-	/// "EssentialsPluginDeviceTemplate" renamed to "SamsungMdcDevice"
+	/// "MakeModelDevice" renamed to "SamsungMdcDevice"
 	/// </example>
-	public class MakeModelDevice : EssentialsBridgeableDevice
+	public class MakeModelDevice : EssentialsBridgeableDevice, IDeviceInfoProvider
 	{
 		/// <summary>
 		/// It is often desirable to store the config
 		/// </summary>
-		private readonly MakeModelConfig config;
+		private readonly MakeModelPropertiesConfig config;
 
 		/// <summary>
 		/// Provides a queue and dedicated worker thread for processing feedback messages from a device.
@@ -92,13 +93,18 @@ namespace PepperDash.Essentials.Plugin
 		public IntFeedback StatusFeedback { get; private set; }
 
 		/// <summary>
+		/// Reports the device IP address through the bridge
+		/// </summary>
+		public StringFeedback IpAddressFeedback { get; private set; }
+
+		/// <summary>
 		/// Plugin device constructor for devices that need IBasicCommunication
 		/// </summary>
 		/// <param name="key"></param>
 		/// <param name="name"></param>
 		/// <param name="config"></param>
 		/// <param name="comms"></param>
-		public MakeModelDevice(string key, string name, MakeModelConfig config, IBasicCommunication comms)
+		public MakeModelDevice(string key, string name, MakeModelPropertiesConfig config, IBasicCommunication comms)
 	: base(key, name)
 		{
 			this.LogInformation("Constructing new {0} instance", name);
@@ -112,6 +118,14 @@ namespace PepperDash.Essentials.Plugin
 			ConnectFeedback = new BoolFeedback("connect", () => Connect);
 			OnlineFeedback = new BoolFeedback("online", () => commsMonitor.IsOnline);
 			StatusFeedback = new IntFeedback("status", () => (int)commsMonitor.Status);
+			IpAddressFeedback = new StringFeedback("ipAddress", () => DeviceInfo.IpAddress);
+
+			// The IP address comes from the tcpSshProperties in the config.  Serial (RS-232) devices leave it empty.
+			// TODO [ ] Set HostName, MacAddress, SerialNumber and FirmwareVersion in the DeviceInfo as the device reports them
+			DeviceInfo = new DeviceInfo
+			{
+				IpAddress = this.config.Control?.TcpSshProperties?.Address ?? string.Empty
+			};
 
 			this.comms = comms;
 			commsMonitor = new GenericCommunicationMonitor(this, this.comms, this.config.PollTimeMs, this.config.WarningTimeoutMs, this.config.ErrorTimeoutMs, Poll);
@@ -152,7 +166,7 @@ namespace PepperDash.Essentials.Plugin
 			StatusFeedback?.FireUpdate();
 		}
 
-		// TODO [ ] If not using an API with a delimeter, delete the method below
+		// TODO [ ] If not using an API with a delimiter, delete the method below
 		private void Handle_LineRecieved(object sender, GenericCommMethodReceiveTextArgs args)
 		{
 			// TODO [ ] Implement method 
@@ -161,14 +175,14 @@ namespace PepperDash.Essentials.Plugin
 			receiveQueue.Enqueue(new ProcessStringMessage(args.Text, ProcessFeedbackMessage));
 		}
 
-		// TODO [ ] If not using an HEX/byte based API with no delimeter,  delete the method below
+		// TODO [ ] If not using an HEX/byte based API with no delimiter,  delete the method below
 		private void Handle_BytesReceived(object sender, GenericCommMethodReceiveBytesArgs args)
 		{
 			// TODO [ ] Implement method 
 			throw new System.NotImplementedException();
 		}
 
-		// TODO [ ] If not using an ASCII based API with no delimeter, delete the method below
+		// TODO [ ] If not using an ASCII based API with no delimiter, delete the method below
 		void Handle_TextReceived(object sender, GenericCommMethodReceiveTextArgs e)
 		{
 			// TODO [ ] Implement method 
@@ -184,8 +198,7 @@ namespace PepperDash.Essentials.Plugin
 
 		}
 
-
-		// TODO [ ] If not using an ACII based API, delete the properties below
+		// TODO [ ] If not using an ASCII based API, delete the properties below
 		/// <summary>
 		/// Sends text to the device plugin comms
 		/// </summary>
@@ -231,6 +244,40 @@ namespace PepperDash.Essentials.Plugin
 		#endregion
 
 
+		#region IDeviceInfoProvider
+
+		/// <summary>
+		/// Network and identity information for the device, shown by Essentials and Mobile Control
+		/// </summary>
+		public DeviceInfo DeviceInfo { get; private set; }
+
+		/// <summary>
+		/// Raised when the DeviceInfo changes
+		/// </summary>
+		public event DeviceInfoChangeHandler DeviceInfoChanged;
+
+		/// <summary>
+		/// Refreshes the DeviceInfo and notifies subscribers and the bridge
+		/// </summary>
+		/// <remarks>
+		/// Called by Essentials when it requests the device info.  Update the DeviceInfo properties here, then raise the change.
+		/// </remarks>
+		public void UpdateDeviceInfo()
+		{
+			// TODO [ ] Refresh the DeviceInfo values from the device as needed for the plugin being developed
+
+			IpAddressFeedback?.FireUpdate();
+
+			var handler = DeviceInfoChanged;
+			if (handler != null)
+			{
+				handler(this, new DeviceInfoEventArgs(DeviceInfo));
+			}
+		}
+
+		#endregion
+
+
 		#region Overrides of EssentialsBridgeableDevice
 
 		/// <summary>
@@ -242,7 +289,7 @@ namespace PepperDash.Essentials.Plugin
 		/// <param name="bridge"></param>
 		public override void LinkToApi(BasicTriList trilist, uint joinStart, string joinMapKey, EiscApiAdvanced bridge)
 		{
-			var joinMap = new EssentialsPluginTemplateBridgeJoinMap(joinStart);
+			var joinMap = new MakeModelBridgeJoinMap(joinStart);
 
 			// This adds the join map to the collection on the bridge
 			bridge?.AddJoinMap(Key, joinMap);
@@ -267,6 +314,7 @@ namespace PepperDash.Essentials.Plugin
 
 			StatusFeedback.LinkInputSig(trilist.UShortInput[joinMap.Status.JoinNumber]);
 			OnlineFeedback.LinkInputSig(trilist.BooleanInput[joinMap.IsOnline.JoinNumber]);
+			IpAddressFeedback.LinkInputSig(trilist.StringInput[joinMap.IpAddress.JoinNumber]);
 
 			UpdateFeedbacks();
 
@@ -285,10 +333,10 @@ namespace PepperDash.Essentials.Plugin
 			ConnectFeedback.FireUpdate();
 			OnlineFeedback.FireUpdate();
 			StatusFeedback.FireUpdate();
+			IpAddressFeedback.FireUpdate();
 		}
 
 		#endregion
-
 	}
 }
 

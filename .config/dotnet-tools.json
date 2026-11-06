@@ -8,6 +8,20 @@
         "husky"
       ],
       "rollForward": false
+    },
+    "pepperdash.essentials.buildtools.readme": {
+      "version": "0.1.1",
+      "commands": [
+        "pd-readme"
+      ],
+      "rollForward": false
+    },
+    "pepperdash.essentials.buildtools.schemagen": {
+      "version": "0.1.1",
+      "commands": [
+        "pd-schemagen"
+      ],
+      "rollForward": false
     }
   }
 }

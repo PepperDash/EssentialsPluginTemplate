@@ -1,96 +1,458 @@
-![PepperDash Essentials Pluign Logo](/images/essentials-plugin-blue.png)
+![PepperDash Essentials Plugin Logo](/images/essentials-plugin-blue.png)
 
-![PepperDash Essentials](https://img.shields.io/badge/PepperDash%20Essentials-≥%20v2.12.1-blue)
-![.NET](https://img.shields.io/badge/.NET%20Framework-4.7.2-512BD4)
+![PepperDash Essentials](https://img.shields.io/badge/PepperDash%20Essentials-≥%20v3.0.0--rc.25-blue)
+![.NET](https://img.shields.io/badge/.NET-8.0-512BD4)
 ![Crestron](https://img.shields.io/badge/Crestron-4--Series-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-# Essentials Plugin Template (c) 2025
+# Essentials Plugin Template (c) 2026
 
-## License
+Use this repository as the starting point for a new [PepperDash Essentials](https://github.com/PepperDash/Essentials) plugin. For background on plugins, see the Essentials Wiki [Plugins](https://pepperdash.github.io/Essentials/docs/Plugins.html) article.
 
-Provided under MIT license
+This README follows the [Diataxis](https://diataxis.fr/) structure:
 
-## Overview
+* [Tutorial](#tutorial) - build your first plugin from the template, step by step
+* [How-to guides](#how-to-guides) - recipes for specific tasks
+* [Reference](#reference) - files, build properties, targets, error codes and rules
+* [Explanation](#explanation) - how the template and its automation work, and why
+* [Plugin Documentation](#plugin-documentation) - the generated documentation of this plugin
 
-Fork this repo when creating a new plugin for Essentials. For more information about plugins, refer to the Essentials Wiki [Plugins](https://pepperdash.github.io/Essentials/docs/Plugins.html) article.
+Have a plugin created from an earlier version of the template? See [MIGRATION.md](MIGRATION.md) to bring it up to date.
 
-This repo contains example classes for the three main categories of devices:
-* `MakeModelDevice`: Used for most third party devices which require communication over a streaming mechanism such as a Com port, TCP/SSh/UDP socket, CEC, etc
-* `MakeModelLogicDevice`:  Used for devices that contain logic, but don't require any communication with third parties outside the program
-* `MakeModelCrestronDevice`:  Used for devices that represent a piece of Crestron hardware
+## Tutorial
 
-There are matching factory classes for each of the three categories of devices.  The `MakeModelConfigObject` should be used as a template and modified for any of the categories of device.  Same goes for the `MakeModeleBridgeJoinMap`.
+In this tutorial you create a plugin for a fictional serial/TCP display, the "Samsung MDC", from the template, build it, document it and commit it. It takes about 15 minutes. You need the [.NET SDK](https://dotnet.microsoft.com/download), Git, and Visual Studio or VS Code.
 
-This also illustrates how a plugin can contain multiple devices.
+### 1. Create the repository
 
-## Cloning Instructions
+On GitHub, create a new repository from this template (**Use this template**), or fork it. Clone it and open the folder:
 
-After forking this repository into your own GitHub space, you can create a new repository using this one as the template.  Then you must install the necessary dependencies as indicated below.
+```
+git clone https://github.com/<your-org>/epi-samsung-mdc.git
+cd epi-samsung-mdc
+```
 
-## Dependencies
+### 2. Build it once
 
-The [Essentials](https://github.com/PepperDash/Essentials) libraries are required. They referenced via nuget. You must have nuget.exe installed and in the `PATH` environment variable to use the following command. Nuget.exe is available at [nuget.org](https://dist.nuget.org/win-x86-commandline/latest/nuget.exe).
+```
+dotnet build
+```
 
-### Installing Dependencies
+The build restores the Essentials NuGet packages, installs the git hooks, and writes two files to `output/`: `epi-make-model.4Series.1.0.0-local.cplz` (the plugin) and a `.nupkg` (the NuGet package). Run `git config core.hooksPath`; it prints `.husky`, which confirms the commit-message hook is active.
 
-Dependencies will be automatically installed when
+### 3. Keep one device category
 
-### Instructions for Renaming Solution and Files
+The template has three example devices. A display is controlled over a serial or TCP connection, so keep `MakeModelDevice` and its factory, and delete the other two device classes and their factories:
 
-See the Task List in Visual Studio for a guide on how to start using the template.  There is extensive inline documentation and examples as well.
+```
+git rm src/MakeModelLogicDevice.cs src/MakeModelLogicDeviceFactory.cs
+git rm src/MakeModelCrestronDevice.cs src/MakeModelCrestronDeviceFactory.cs
+```
 
-For renaming instructions in particular, see the XML `remarks` tags on class definitions
+### 4. Name the device
 
-## Git Hooks (Husky.Net)
+1. Rename `MakeModelDevice` to `SamsungMdcDevice` and `MakeModelDeviceFactory` to `SamsungMdcDeviceFactory`, in both the class and the file name. Your editor's rename refactoring updates the references.
+2. In `SamsungMdcDeviceFactory`, set the type name that configuration files will use:
 
-This repo uses [Husky.Net](https://alirezanet.github.io/Husky.Net/) to run a `pre-commit` hook. The hook runs `.github/scripts/Update-ReadmeBadges.ps1`, which keeps the `.NET` and `PepperDash Essentials` badges at the top of this README in sync with the project:
+   ```csharp
+   TypeNames = new List<string>() { "samsungMdc" };
+   ```
 
-* `.NET` badge - `TargetFramework` in `src/*.4Series.csproj`
-* `PepperDash Essentials` badge - the highest `MinimumEssentialsFrameworkVersion` in `src/*Factory.cs`
+3. Build again with `dotnet build`. It succeeds, and the badges at the top of this README are unchanged because the Essentials version did not change.
 
-If the badges change, `README.md` is re-staged automatically so the update is part of your commit. A warning is printed if the `PepperDashEssentials` package version in the csproj differs from `MinimumEssentialsFrameworkVersion`.
+### 5. Document the plugin
+
+```
+dotnet msbuild -t:UpdateReadmeDocs
+git diff README.md
+```
+
+The [Plugin Documentation](#plugin-documentation) sections now list `samsungMdc` under Supported Types, and only the base classes of the device you kept.
+
+### 6. Commit
+
+```
+git add -A
+git commit -m "feat: add Samsung MDC display plugin"
+```
+
+The commit-msg hook checks the message and the commit succeeds. Try `git commit --allow-empty -m "added stuff"` to see it reject a message that does not follow the [commit message rules](#commit-message-rules).
+
+You now have a building, documented plugin. Next, work through [Rename the template](#rename-the-template) to finish customizing it, and [Release a version](#release-a-version) to publish it.
+
+## How-to guides
+
+### Migrate an existing plugin
+
+To bring a plugin repository created from an earlier version of this template up to date with the current build automation, follow [MIGRATION.md](MIGRATION.md).
+
+### Rename the template
+
+Every name to replace is a form of "Make Model"; the [placeholder names](#placeholder-names) table lists each form and where it appears. Search the repository for `MakeModel`, `make-model`, `Make.Model` and `Make Model`, then:
+
+1. Rename the solution and project files (`epi-make-model.4Series.sln`, `src/epi-make-model.4Series.csproj`, and the project path inside the `.sln`), the namespace and the classes. The XML `remarks` and `example` tags on each class show the intended rename, for example `MakeModelDevice` to `SamsungMdcDevice`.
+2. Delete the device categories and factories the plugin does not need, and `MIGRATION.md`.
+3. In each factory, set `MinimumEssentialsFrameworkVersion` and `TypeNames`.
+4. Update `MakeModelPropertiesConfig` and `MakeModelBridgeJoinMap` for the plugin's configuration and joins.
+5. Update the [package properties](#package-properties).
+6. Update `.releaserc.json` (see [Release a version](#release-a-version)).
+7. [Regenerate the plugin documentation](#regenerate-the-plugin-documentation).
+
+In Visual Studio, the Task List shows every remaining `TODO [ ]` item.
+
+### Change the minimum Essentials version
+
+1. Set `MinimumEssentialsFrameworkVersion` in each factory to the lowest Essentials version the plugin is tested against. Use a numeric version such as `3.0.0`, never a prerelease string such as `3.0.0-rc.11`: Essentials parses the minimum with `System.Version`, and a prerelease string silently skips loading the plugin.
+2. Set the `PepperDashEssentials` `PackageReference` version in the csproj to the same version or higher. Before that version is released, reference its prerelease (for example `3.0.0-rc.11` for `3.0.0`); the build warns with `PDREADME006` until you update to the release.
+3. Run `dotnet build`. The `PepperDash Essentials` badge updates; commit `README.md` with the change.
+4. [Regenerate the plugin documentation](#regenerate-the-plugin-documentation) so the Minimum Essentials Framework Versions section matches.
+
+### Regenerate the plugin documentation
+
+1. Run `dotnet msbuild -t:UpdateReadmeDocs` from the repo root, or in VS Code run **Terminal > Run Task... > Update README docs**. In Copilot Chat, `/update-readme-docs` runs the target and then reviews the result.
+2. Review `git diff README.md`. If the Config Example shows placeholders such as `SampleString` or `SampleValue`, add an `<example>` block for that property in the config class (see [Set the Config Example values](#set-the-config-example-values)) and run the target again.
+3. Commit `README.md` with your changes.
+
+### Edit a generated section by hand
+
+1. Edit the content between the section's `<!-- START name -->` and `<!-- END name -->` markers.
+2. Add `<!-- SKIP -->` on the line after the `<!-- START name -->` marker so later runs leave the section alone.
+
+To hide a section that does not apply, keep its markers with only `<!-- SKIP -->` between them. Deleting the markers does not work; the generator adds them back.
+
+Do not mark Minimum Essentials Framework Versions as `<!-- SKIP -->`, or it stops following version changes. The Config Example is always regenerated and ignores `<!-- SKIP -->`; set its values in the config class instead.
+
+### Set the Config Example values
+
+The Config Example takes each property's value from the first `<example>` block on that property whose `<code>` contains the property's JSON name, for example:
+
+```csharp
+/// <example>
+/// <code>
+/// "properties": {
+///     "pollTimeMs": 60000
+/// }
+/// </code>
+/// </example>
+[JsonProperty("pollTimeMs")]
+public long PollTimeMs { get; set; }
+```
+
+Without an example, `pollTimeMs`, `warningTimeoutMs` and `errorTimeoutMs` default to `30000`, `180000` and `300000`, and other properties get placeholders from their C# type. Run `dotnet msbuild -t:UpdateReadmeDocs` after changing an example.
+
+### Check the README the way CI does
+
+```
+dotnet build -p:ReadmeMode=Check
+```
+
+The build fails with `PDREADME004` if the badges are stale and with `PDREADME005` if the plugin documentation is stale, and changes nothing. Fix it with `dotnet build` and `dotnet msbuild -t:UpdateReadmeDocs`.
+
+In VS Code, **Terminal > Run Task...** has the same actions: **Update README badges**, **Update README docs** and **Check README**.
+
+### Release a version
+
+1. Replace the placeholder pre-release entry in `.releaserc.json` (`replace-me-feature-branch`, `replace-me-prerelease`) with your pre-release branch and channel, or remove it if you only release from `main`.
+2. Write [conventional commit messages](#commit-message-rules); they determine the next version.
+3. Push. The build workflow releases when semantic-release finds a new version. Use the commit scope `force-patch` to force a patch release, or `no-release` to skip one.
+
+### Set up the PepperDash GitHub Packages fallback
+
+You do not need this to build. The build tools always restore from nuget.org with no credentials. Register the PepperDash GitHub Packages feed only as a fallback, for example if a tool version is not on nuget.org yet, or if your plugin uses packages from a PepperDash GitHub feed.
+
+1. Create a classic personal access token on GitHub with the `read:packages` scope, then authorize it for SSO on the PepperDash organization (Settings > Developer settings > Personal access tokens > Configure SSO).
+2. Put it in an environment variable. In bash or zsh: `export GITHUB_TOKEN=<your-token>`. In PowerShell: `$env:GITHUB_TOKEN = "<your-token>"`.
+3. Register the feed for `dotnet`, which is what `dotnet tool restore` and `dotnet build` read:
+
+   ```
+   dotnet nuget add source https://nuget.pkg.github.com/PepperDash/index.json --name github-pd --username <your-github-username> --password "$GITHUB_TOKEN" --store-password-in-clear-text
+   ```
+
+   In PowerShell write `"$env:GITHUB_TOKEN"`. Windows can encrypt the password, so there you can drop `--store-password-in-clear-text`. macOS and Linux cannot, and the token is stored in plain text in your user NuGet.Config.
+4. Optional: if you also use the standalone `nuget` command, register it there too. `nuget` reads a different config file from `dotnet`, so each one needs its own entry:
+
+   ```
+   nuget sources add -name github-pd -source https://nuget.pkg.github.com/PepperDash/index.json -username <your-github-username> -password "$GITHUB_TOKEN"
+   ```
+5. Check it: `dotnet nuget list source` lists `github-pd`, and `dotnet package search PepperDash.Essentials.BuildTools --source github-pd` runs without an authorization error.
+
+The source name must be exactly `github-pd`, because `nuget.config` in this repo refers to it by that name. Other PepperDash feeds (`pepperdash-engineering`, `pepperdash-services`, `pepperdash-products`) are added the same way with their own name and URL, and need an entry in `nuget.config` before the build uses them. To keep the token out of the config file, skip `--password` and add `<add key="ClearTextPassword" value="%GITHUB_TOKEN%" />` under the source's entry in `packageSourceCredentials`; the variable must then be set whenever you restore.
+
+### Install or skip the git hooks
+
+* The hooks install automatically on `dotnet restore` or `dotnet build`, and when VS Code runs the "Install git hooks" task on folder open. To install them manually: `dotnet tool restore`, then `dotnet husky install`.
+* Skip the hook for one commit: `git commit --no-verify`.
+* Skip the automatic install: set the environment variable `HUSKY=0`.
+
+### Package properties
+
+Set these plugin-specific properties in the csproj:
+
+1. `PackageId` - the name used to install the package from NuGet
+2. `PackageProjectUrl` - the plugin repository's URL
+3. `AssemblyTitle` - the DLL name shown on a processor when the plugin is loaded
+4. `Description` and `PackageTags`
+
+Set `Product` and `RepositoryUrl` in `src/Directory.Build.props`. Shared values (`Version`, `Authors`, `Company`, `Copyright`, `PackageOutputPath`) are also defined there.
+
+## Reference
+
+### Repository layout
+
+| Path | Contents |
+| --- | --- |
+| `src/MakeModelDevice.cs`, `src/MakeModelDeviceFactory.cs` | Device that talks to third-party equipment over a stream (serial, TCP/SSH/UDP, CEC) |
+| `src/MakeModelLogicDevice.cs`, `src/MakeModelLogicDeviceFactory.cs` | Device with logic only, no external communication |
+| `src/MakeModelCrestronDevice.cs`, `src/MakeModelCrestronDeviceFactory.cs` | Device that represents Crestron hardware |
+| `src/MakeModelPropertiesConfig.cs` | Device configuration class (`MakeModelPropertiesConfig`): the device's `properties` in the configuration file |
+| `src/MakeModelBridgeJoinMap.cs` | EISC bridge join map (`MakeModelBridgeJoinMap`) |
+| `src/Directory.Build.props` | Shared version, package and copyright properties |
+| `src/Directory.Build.targets` | CPLZ packaging, git hook install, and the targets that run `pd-readme` for the README badges and docs |
+| `.config/dotnet-tools.json` | Pins the tools the build runs: Husky.Net and [`pd-readme`](https://github.com/PepperDash/essentials-build-tools) (README badges and plugin documentation) |
+| `nuget.config` | Package source mapping: the build tools restore from nuget.org, with the PepperDash GitHub Packages feed as a fallback, everything else from nuget.org. No credentials. See [Set up the PepperDash GitHub Packages fallback](#set-up-the-pepperdash-github-packages-fallback) |
+| `.vscode/tasks.json` | VS Code tasks: restore tools, install git hooks, README badges, docs and check, build, and generate schema |
+| `.husky/` | Commit-msg hook and its linter (`csx/commit-lint.csx`) |
+| `.releaserc.json` | semantic-release configuration |
+| `.github/workflows/EssentialsPlugins-builds-caller.yml` | Build and release workflow |
+| `.github/skills/update-readme-docs/` | Copilot skill that regenerates and reviews the plugin documentation |
+| `MIGRATION.md` | Steps to update a plugin created from an earlier template; delete it from new plugins |
+
+### Placeholder names
+
+The template names everything after a fictional "Make Model" device. Replace each form with your plugin's make and model; for a Samsung MDC display, `MakeModel` becomes `SamsungMdc` and `epi-make-model` becomes `epi-samsung-mdc`.
+
+| Form | Where |
+| --- | --- |
+| `MakeModel` | Class and file names in `src/` (devices, factories, `MakeModelPropertiesConfig`, `MakeModelBridgeJoinMap`), and the namespace `PepperDash.Essentials.Plugins.MakeModel` (`RootNamespace` in the csproj and every `.cs` file) |
+| `epi-make-model` | Solution and project file names, the GitHub repository name in `RepositoryUrl` (`src/Directory.Build.props`) and `PackageProjectUrl` (csproj) |
+| `Make.Model` | `AssemblyTitle` and `PackageId` (both `PepperDash.Essentials.Plugins.Make.Model`) in the csproj |
+| `Make Model` | `Product` (`src/Directory.Build.props`) and `Description` (csproj) |
+| `examplePlugin…` | `TypeNames` in each factory, the configuration `type` values |
+
+### Build outputs
+
+| File | Description |
+| --- | --- |
+| `output/<project>.<version>.cplz` | The plugin, for loading on a processor |
+| `output/<PackageId>.<version>.nupkg` | The NuGet package, including `LICENSE.md` and this `README.md` |
+
+### Build targets
+
+| Target | Runs | Effect |
+| --- | --- | --- |
+| `UpdateReadmeBadges` | Before every local build | Rewrites stale `.NET` and `PepperDash Essentials` badges. Runs every build; does nothing when they are current. |
+| `CheckReadmeBadges` | Before the build when `ReadmeMode` is `Check` | Fails on stale badges |
+| `UpdateReadmeDocs` | Only when invoked (`dotnet msbuild -t:UpdateReadmeDocs`) | Regenerates the [Plugin Documentation](#plugin-documentation) sections |
+| `CheckReadmeDocs` | Before the build when `ReadmeMode` is `Check` | Fails on stale plugin documentation |
+| `InstallGitHooks` | Before restore, unless `CI=true` or `HUSKY=0` | Runs `dotnet tool restore` and `dotnet husky install` |
+
+The four README targets call `dotnet pd-readme` and run `dotnet tool restore` first, including in CI, where `InstallGitHooks` does not run. To use the tool directly, run `dotnet pd-readme badges` or `dotnet pd-readme docs` (add `--check` to verify without writing).
+
+The README targets run only for projects with `ProjectType` `ProgramLibrary`, and never in design-time builds.
+
+### Build properties
+
+| Property | Default | Effect |
+| --- | --- | --- |
+| `ReadmeMode` | `Check` when `CI=true`, otherwise `Update` | `Check` verifies the README without changing it |
+| `SkipReadmeBadges` | not set | `true` skips the badge targets |
+| `SkipReadmeDocsCheck` | not set | `true` skips `CheckReadmeDocs` |
+| `ReadmePath` | `README.md` at the repo root | README file the targets update |
+| `HUSKY` | not set | `0` skips the git hook install (environment variable) |
+
+### Error codes
+
+| Code | Meaning | Fix |
+| --- | --- | --- |
+| `PDREADME001` | No `MinimumEssentialsFrameworkVersion = "x.y.z";` assignment found in the project's C# files | Set it in at least one factory. The version must be numeric (`3.0.0`), not a prerelease string like `3.0.0-rc.11` |
+| `PDREADME002` | The `PepperDashEssentials` package version is lower than `MinimumEssentialsFrameworkVersion` | Raise the package version or lower the factory minimum |
+| `PDREADME003` | A badge is missing from `README.md` | Restore the `.NET` and `PepperDash Essentials` badges at the top |
+| `PDREADME004` | The badges are stale (check mode) | Run `dotnet build` and commit `README.md` |
+| `PDREADME005` | The plugin documentation is stale (check mode) | Run `dotnet msbuild -t:UpdateReadmeDocs`, review and commit `README.md` |
+| `PDREADME007` | The target framework could not be determined | The build passes `$(TargetFramework)`; when running `pd-readme` by hand, pass `--target-framework <tfm>` |
+| `PDREADME006` (warning) | The `PepperDashEssentials` package is a prerelease of `MinimumEssentialsFrameworkVersion` (for example `3.0.0-rc.11` for `3.0.0`), which is not released yet. The badge shows the package version. | Update the package to the release once it is published |
+
+### Badges
+
+| Badge | Source |
+| --- | --- |
+| `.NET` | `TargetFramework` of the plugin project |
+| `PepperDash Essentials` | The highest `MinimumEssentialsFrameworkVersion = "x.y.z";` assignment in the project's C# files, in any file and subfolder. When the `PepperDashEssentials` package is a prerelease of that version, the package version instead |
+
+### Generated documentation sections
+
+| Section | Source |
+| --- | --- |
+| Minimum Essentials Framework Versions | Each distinct `MinimumEssentialsFrameworkVersion` value |
+| Config Example | The class whose name ends in `Config` or `ConfigObject` with the most properties. Values come from each property's `<example>` block (see [Set the Config Example values](#set-the-config-example-values)). `type` is the first `TypeNames` entry of the first C# file (by file name) that sets `TypeNames`; the unused `uid` property is removed. Always regenerated, even with `<!-- SKIP -->`. |
+| Supported Types | Every `TypeNames` entry |
+| Join Maps | Classes deriving from `JoinMapBaseAdvanced`, in any file. Type (RW) is `R`, `W` or `R/W` from each join's `JoinCapabilities` |
+| Base Classes, Interfaces | Base classes and interfaces declared by the plugin's own classes, excluding factories and join maps |
+| Public Methods | Public methods in the project's C# files |
+| Bool, Int and String Feedbacks | Public `BoolFeedback`, `IntFeedback` and `StringFeedback` members |
+
+A section containing `<!-- SKIP -->` is never changed, except the Config Example, which is always regenerated. Factories and join maps are found by their content, so renaming them (for example to `SonyBraviaDeviceFactory`) needs no changes.
+
+### Commit message rules
+
+* Header: `<type>(<optional scope>): <subject>`, at most 100 characters
+* Types: `feat`, `fix`, `chore`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `revert`, `wip`
+* A blank line between the header and the body
+* Breaking changes: a `BREAKING CHANGE:` footer. The `feat!:` form is rejected because the release tooling does not recognize it.
+* Allowed as-is: merge commits, `Revert "..."`, and `fixup!`, `squash!` and `amend!` commits (squash these before pushing)
+
+The type list follows the shared `checkCommitMessage` workflow in PepperDash/workflow-templates. This template's build workflow does not run that check.
 
 ### Requirements
 
-* [.NET SDK](https://dotnet.microsoft.com/download) (provides `dotnet tool`)
-* [PowerShell 7+ (`pwsh`)](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) on the `PATH` (Windows, macOS and Linux). Windows PowerShell 5.1 is not used.
+* [.NET SDK](https://dotnet.microsoft.com/download) (8 or later): building, the git hooks and all README automation. The README tool, `pd-readme`, is a .NET 8 tool restored by the build from nuget.org (with the PepperDash GitHub Packages feed as a fallback, if you registered it), so the machine needs the .NET 8 runtime (a newer runtime alone is not enough: the tool is pinned with `rollForward: false`) even though plugins now target net8.0. Nothing else is required.
+* Visual Studio or VS Code
+* The Essentials libraries come from the `PepperDashEssentials` NuGet package and restore automatically; `nuget.exe` is not required.
 
-### Setup
+## Explanation
 
-The hook is installed automatically the first time you do any of the following in a fresh clone:
+### Device categories
 
-* Open the solution in Visual Studio, or run `dotnet restore` / `dotnet build`
-* Open the folder in VS Code and allow the "Install git hooks" automatic task
+Essentials plugins usually wrap one of three kinds of device, so the template includes one example of each: a device that talks to third-party equipment over a stream (`MakeModelDevice`), a device that only contains logic (`MakeModelLogicDevice`), and a device that represents Crestron hardware (`MakeModelCrestronDevice`). Each has its own factory, which tells Essentials which configuration `type` values create it and which Essentials version it needs. One plugin can contain several devices.
 
-To install it manually:
+### Why the README is maintained by the build
 
+This README is packed into the plugin's NuGet package, so the badges and the plugin documentation must match the code that was released. Both are produced by MSBuild targets rather than by a git hook or a CI job:
+
+* A build target runs the same way in Visual Studio, VS Code, the command line and CI, and needs nothing beyond the .NET SDK.
+* Git hooks can be skipped, and a CI job that commits to the repository creates extra commits after review. Generating locally means the change is reviewed with the code that caused it.
+* CI runs the same targets in check mode, so a release cannot be packaged with a README that no longer matches the code.
+
+The badges are rewritten on every build because they are purely mechanical. The plugin documentation is regenerated only when you ask for it, because it needs a review: the Config Example can contain placeholders for properties without an `<example>` block, and some sections are curated by hand with `<!-- SKIP -->`.
+
+CI checks the README only in the release build, which runs when semantic-release finds a new version. Ordinary pushes are not checked.
+
+### The documentation generator
+
+`pd-readme docs` ([PepperDash/essentials-build-tools](https://github.com/PepperDash/essentials-build-tools)) is a C# port of `metadata.py` from [PepperDash/workflow-templates](https://github.com/PepperDash/workflow-templates), which the older `update-readme` workflow runs in CI. It produces the same sections, with these differences: the output order no longer depends on the file system, each Minimum Essentials Framework Version is listed once, a join map is also found when its file is not named after the class, interface names are matched case-sensitively, and Base Classes are listed before Interfaces as plain items. The two implementations are maintained separately.
+
+### Commit messages and versions
+
+Releases are versioned by [semantic-release](https://semantic-release.gitbook.io/), which reads the commit messages since the last release: `fix` produces a patch release, `feat` a minor release, and a `BREAKING CHANGE:` footer a major release. The commit-msg hook catches malformed messages before they reach the shared history, where they would be ignored or produce the wrong version.
+
+## License
+
+Provided under the MIT license; see [LICENSE.md](LICENSE.md).
+
+## Plugin Documentation
+
+The sections below are generated from the source code; see [Regenerate the plugin documentation](#regenerate-the-plugin-documentation) and [Generated documentation sections](#generated-documentation-sections).
+
+<!-- START Minimum Essentials Framework Versions -->
+### Minimum Essentials Framework Versions
+
+- 3.0.0
+<!-- END Minimum Essentials Framework Versions -->
+
+<!-- START Config Example -->
+### Config Example
+
+```json
+{
+    "key": "device-1",
+    "name": "Example Device",
+    "type": "examplePluginCrestronDevice",
+    "group": "pluginDevices",
+    "properties": {
+        "control": {
+            "method": "tcpIp",
+            "tcpSshProperties": {
+                "address": "172.22.0.101",
+                "port": 23,
+                "username": "admin",
+                "password": "password",
+                "autoReconnect": true,
+                "autoReconnectIntervalMs": 10000
+            }
+        },
+        "pollTimeMs": 30000,
+        "warningTimeoutMs": 180000,
+        "errorTimeoutMs": 300000,
+        "DeviceDictionary": {
+            "item1": {
+                "name": "Item 1 Name",
+                "value": 1
+            }
+        }
+    }
+}
 ```
-dotnet tool restore
-dotnet husky install
-```
+<!-- END Config Example -->
 
-Verify with `git config core.hooksPath`, which should print `.husky`.
+<!-- START Supported Types -->
+### Supported Types
 
-### Usage
+- examplePluginCrestronDevice
+- examplePluginDevice
+- examplePluginLogicDevice
+<!-- END Supported Types -->
 
-* Commit as usual; the hook runs on every `git commit`.
-* Run it on demand: `dotnet husky run`
-* Check without modifying files (useful for CI): `pwsh -NoProfile -File .github/scripts/Update-ReadmeBadges.ps1 -Check`
-* The hook refuses to run if `README.md`, the `.4Series.csproj`, or a `*Factory.cs` file has unstaged or untracked changes, so a partial commit never picks up unrelated edits. Stage or stash them and commit again.
-* Skip the hook for a single commit: `git commit --no-verify`
-* Skip the automatic install on restore: set the `HUSKY=0` environment variable. It is also skipped when `CI=true`.
+<!-- START Join Maps -->
+### Join Maps
 
-### Renaming
+#### Digitals
 
-The script locates files by pattern (`*.4Series.csproj`, `*Factory.cs`), so renaming the project or factory classes does not require changes. Keep a `MinimumEssentialsFrameworkVersion = "x.y.z";` assignment in at least one factory, and keep the two badges in this README.
+| Join | Type (RW) | Description |
+| --- | --- | --- |
+| 1 | R | Is Online |
+| 2 | R/W | Connect (Held)/Disconnect (Release) & corresponding feedback |
 
-## Build Instructions (PepperDash Internal) 
+#### Analogs
 
-## Generating Nuget Package
+| Join | Type (RW) | Description |
+| --- | --- | --- |
+| 1 | R | Socket Status |
 
-A nuget package is automatically generated when the plugin is build. To modify the name and other details of the package, edit the following properties in the .csproj file:
+#### Serials
 
-1. `PackageId` - This is the name that will be used to pull the package from Nuget once it's published
-2. `PackgeProjectUrl` - This should match the URL for the plugin repo
-3. `AssemblyTitle` - This is the dll file name that is will show on a processor when the plugin is loaded
+| Join | Type (RW) | Description |
+| --- | --- | --- |
+| 1 | R | Device Name |
+| 2 | R | IP Address |
+<!-- END Join Maps -->
+
+<!-- START Base Classes -->
+### Base Classes
+
+- CrestronGenericBridgeableBaseDevice
+- EssentialsBridgeableDevice
+<!-- END Base Classes -->
+
+<!-- START Interfaces Implemented -->
+### Interfaces
+
+- IDeviceInfoProvider
+<!-- END Interfaces Implemented -->
+
+<!-- START Public Methods -->
+### Public Methods
+
+- public void SendText(string text)
+- public void SendBytes(byte[] bytes)
+- public void Poll()
+- public void UpdateDeviceInfo()
+<!-- END Public Methods -->
+
+<!-- START Bool Feedbacks -->
+### Bool Feedbacks
+
+- ConnectFeedback
+- OnlineFeedback
+<!-- END Bool Feedbacks -->
+
+<!-- START Int Feedbacks -->
+### Int Feedbacks
+
+- StatusFeedback
+<!-- END Int Feedbacks -->
+
+<!-- START String Feedbacks -->
+### String Feedbacks
+
+- IpAddressFeedback
+<!-- END String Feedbacks -->

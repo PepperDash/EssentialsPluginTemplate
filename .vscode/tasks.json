@@ -2,15 +2,28 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Install git hooks",
-      "type": "shell",
-      "command": "dotnet tool restore && dotnet husky install",
-      "options": {
-        "shell": {
-          "executable": "pwsh",
-          "args": ["-NoProfile", "-Command"]
-        }
+      "label": "Restore dotnet tools",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "tool",
+        "restore"
+      ],
+      "presentation": {
+        "reveal": "silent",
+        "close": true
       },
+      "problemMatcher": []
+    },
+    {
+      "label": "Install git hooks",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "husky",
+        "install"
+      ],
+      "dependsOn": "Restore dotnet tools",
       "presentation": {
         "reveal": "silent",
         "close": true
@@ -18,6 +31,76 @@
       "runOptions": {
         "runOn": "folderOpen"
       },
+      "problemMatcher": []
+    },
+    {
+      "label": "Update README docs",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "msbuild",
+        "-nologo",
+        "-t:UpdateReadmeDocs"
+      ],
+      "problemMatcher": "$msCompile",
+      "dependsOn": "Restore dotnet tools"
+    },
+    {
+      "label": "Update README badges",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "pd-readme",
+        "badges",
+        "--project",
+        "src/epi-make-model.4Series.csproj",
+        "--readme",
+        "README.md"
+      ],
+      "dependsOn": "Restore dotnet tools",
+      "problemMatcher": []
+    },
+    {
+      "label": "Check README",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "src/epi-make-model.4Series.csproj",
+        "-nologo",
+        "-p:ReadmeMode=Check"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Build plugin",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "src/epi-make-model.4Series.csproj",
+        "-nologo"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Generate schema",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "pd-schemagen",
+        "--source",
+        ".",
+        "--assembly",
+        "src/bin/Debug/net8.0/epi-make-model.4Series.dll",
+        "--out",
+        "output/schema.json"
+      ],
+      "dependsOn": [
+        "Restore dotnet tools",
+        "Build plugin"
+      ],
+      "dependsOrder": "sequence",
       "problemMatcher": []
     }
   ]

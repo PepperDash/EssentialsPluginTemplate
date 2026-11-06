@@ -1,6 +1,6 @@
 ﻿using PepperDash.Essentials.Core;
 
-namespace PepperDash.Essentials.Plugin
+namespace PepperDash.Essentials.Plugins.MakeModel
 {
 	/// <summary>
 	/// Plugin device Bridge Join Map
@@ -10,9 +10,9 @@ namespace PepperDash.Essentials.Plugin
 	/// </remarks>
 	/// <see cref="PepperDash.Essentials.Core.Bridges"/>
 	/// <example>
-	/// "EssentialsPluginBridgeJoinMapTemplate" renamed to "SamsungMdcBridgeJoinMap"
+	/// "MakeModelBridgeJoinMap" renamed to "SamsungMdcBridgeJoinMap"
 	/// </example>
-	public class EssentialsPluginTemplateBridgeJoinMap : JoinMapBaseAdvanced
+	public class MakeModelBridgeJoinMap : JoinMapBaseAdvanced
 	{
 		#region Digital
 
@@ -44,7 +44,7 @@ namespace PepperDash.Essentials.Plugin
 				Description = "Connect (Held)/Disconnect (Release) & corresponding feedback",
 				JoinCapabilities = eJoinCapabilities.ToFromSIMPL,
 				JoinType = eJoinType.Digital
-			});		
+			});
 
 		#endregion
 
@@ -74,6 +74,7 @@ namespace PepperDash.Essentials.Plugin
 
 		// TODO [ ] Add serial joins below plugin being developed
 
+		[JoinName("DeviceName")]
 		public JoinDataComplete DeviceName = new JoinDataComplete(
 			new JoinData
 			{
@@ -87,14 +88,28 @@ namespace PepperDash.Essentials.Plugin
 				JoinType = eJoinType.Serial
 			});
 
+		[JoinName("IpAddress")]
+		public JoinDataComplete IpAddress = new JoinDataComplete(
+			new JoinData
+			{
+				JoinNumber = 2,
+				JoinSpan = 1
+			},
+			new JoinMetadata
+			{
+				Description = "IP Address",
+				JoinCapabilities = eJoinCapabilities.ToSIMPL,
+				JoinType = eJoinType.Serial
+			});
+
 		#endregion
 
 		/// <summary>
 		/// Plugin device BridgeJoinMap constructor
 		/// </summary>
 		/// <param name="joinStart">This will be the join it starts on the EISC bridge</param>
-        public EssentialsPluginTemplateBridgeJoinMap(uint joinStart)
-            : base(joinStart, typeof(EssentialsPluginTemplateBridgeJoinMap))
+		public MakeModelBridgeJoinMap(uint joinStart)
+			: base(joinStart, typeof(MakeModelBridgeJoinMap))
 		{
 		}
 	}

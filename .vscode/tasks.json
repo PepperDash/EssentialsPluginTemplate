@@ -61,6 +61,18 @@
       "problemMatcher": []
     },
     {
+      "label": "Check README",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "src/epi-make-model.4Series.csproj",
+        "-nologo",
+        "-p:ReadmeMode=Check"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
       "label": "Build plugin",
       "type": "process",
       "command": "dotnet",

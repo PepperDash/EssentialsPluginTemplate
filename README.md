@@ -148,11 +148,35 @@ dotnet build -p:ReadmeMode=Check
 
 The build fails with `PDREADME004` if the badges are stale and with `PDREADME005` if the plugin documentation is stale, and changes nothing. Fix it with `dotnet build` and `dotnet msbuild -t:UpdateReadmeDocs`.
 
+In VS Code, **Terminal > Run Task...** has the same actions: **Update README badges**, **Update README docs** and **Check README**.
+
 ### Release a version
 
 1. Replace the placeholder pre-release entry in `.releaserc.json` (`replace-me-feature-branch`, `replace-me-prerelease`) with your pre-release branch and channel, or remove it if you only release from `main`.
 2. Write [conventional commit messages](#commit-message-rules); they determine the next version.
 3. Push. The build workflow releases when semantic-release finds a new version. Use the commit scope `force-patch` to force a patch release, or `no-release` to skip one.
+
+### Set up the PepperDash GitHub Packages fallback
+
+You do not need this to build. The build tools always restore from nuget.org with no credentials. Register the PepperDash GitHub Packages feed only as a fallback, for example if a tool version is not on nuget.org yet, or if your plugin uses packages from a PepperDash GitHub feed.
+
+1. Create a classic personal access token on GitHub with the `read:packages` scope, then authorize it for SSO on the PepperDash organization (Settings > Developer settings > Personal access tokens > Configure SSO).
+2. Put it in an environment variable. In bash or zsh: `export GITHUB_TOKEN=<your-token>`. In PowerShell: `$env:GITHUB_TOKEN = "<your-token>"`.
+3. Register the feed for `dotnet`, which is what `dotnet tool restore` and `dotnet build` read:
+
+   ```
+   dotnet nuget add source https://nuget.pkg.github.com/PepperDash/index.json --name github-pd --username <your-github-username> --password "$GITHUB_TOKEN" --store-password-in-clear-text
+   ```
+
+   In PowerShell write `"$env:GITHUB_TOKEN"`. Windows can encrypt the password, so there you can drop `--store-password-in-clear-text`. macOS and Linux cannot, and the token is stored in plain text in your user NuGet.Config.
+4. Optional: if you also use the standalone `nuget` command, register it there too. `nuget` reads a different config file from `dotnet`, so each one needs its own entry:
+
+   ```
+   nuget sources add -name github-pd -source https://nuget.pkg.github.com/PepperDash/index.json -username <your-github-username> -password "$GITHUB_TOKEN"
+   ```
+5. Check it: `dotnet nuget list source` lists `github-pd`, and `dotnet package search PepperDash.Essentials.BuildTools --source github-pd` runs without an authorization error.
+
+The source name must be exactly `github-pd`, because `nuget.config` in this repo refers to it by that name. Other PepperDash feeds (`pepperdash-engineering`, `pepperdash-services`, `pepperdash-products`) are added the same way with their own name and URL, and need an entry in `nuget.config` before the build uses them. To keep the token out of the config file, skip `--password` and add `<add key="ClearTextPassword" value="%GITHUB_TOKEN%" />` under the source's entry in `packageSourceCredentials`; the variable must then be set whenever you restore.
 
 ### Install or skip the git hooks
 
@@ -185,6 +209,8 @@ Set `Product` and `RepositoryUrl` in `src/Directory.Build.props`. Shared values 
 | `src/Directory.Build.props` | Shared version, package and copyright properties |
 | `src/Directory.Build.targets` | CPLZ packaging, git hook install, and the targets that run `pd-readme` for the README badges and docs |
 | `.config/dotnet-tools.json` | Pins the tools the build runs: Husky.Net and [`pd-readme`](https://github.com/PepperDash/essentials-build-tools) (README badges and plugin documentation) |
+| `nuget.config` | Package source mapping: the build tools restore from nuget.org, with the PepperDash GitHub Packages feed as a fallback, everything else from nuget.org. No credentials. See [Set up the PepperDash GitHub Packages fallback](#set-up-the-pepperdash-github-packages-fallback) |
+| `.vscode/tasks.json` | VS Code tasks: restore tools, install git hooks, README badges, docs and check, build, and generate schema |
 | `.husky/` | Commit-msg hook and its linter (`csx/commit-lint.csx`) |
 | `.releaserc.json` | semantic-release configuration |
 | `.github/workflows/EssentialsPlugins-builds-caller.yml` | Build and release workflow |
@@ -279,7 +305,7 @@ The type list follows the shared `checkCommitMessage` workflow in PepperDash/wor
 
 ### Requirements
 
-* [.NET SDK](https://dotnet.microsoft.com/download) (8 or later): building, the git hooks and all README automation. The README tool, `pd-readme`, is a .NET 8 tool restored from nuget.org by the build, so the machine needs the .NET 8 (or later) runtime even though plugins now target net8.0. Nothing else is required.
+* [.NET SDK](https://dotnet.microsoft.com/download) (8 or later): building, the git hooks and all README automation. The README tool, `pd-readme`, is a .NET 8 tool restored by the build from nuget.org (with the PepperDash GitHub Packages feed as a fallback, if you registered it), so the machine needs the .NET 8 (or later) runtime even though plugins now target net8.0. Nothing else is required.
 * Visual Studio or VS Code
 * The Essentials libraries come from the `PepperDashEssentials` NuGet package and restore automatically; `nuget.exe` is not required.
 

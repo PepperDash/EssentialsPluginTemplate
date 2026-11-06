@@ -15,7 +15,7 @@ The guide targets the template's `main` branch as of PR #38 (`784667e`). The [RE
 ## Before you start
 
 * The plugin must be a 4-Series-only, SDK-style project (`<Project Sdk="Microsoft.NET.Sdk">`) in `src/`, one level below the repository root. The build targets look for `../README.md` and `../.config/dotnet-tools.json` relative to `src/`. If the repository still has a 3-Series project, remove it first (see the template's PR #33).
-* You need the [.NET SDK](https://dotnet.microsoft.com/download) (8 or later) and Git. `nuget.exe` is no longer required. The build restores `pd-readme` from nuget.org, so the .NET 8 (or later) runtime must be installed even for a net472 plugin.
+* You need the [.NET SDK](https://dotnet.microsoft.com/download) (8 or later) and Git. `nuget.exe` is no longer required. The build restores `pd-readme` from nuget.org, so the .NET 8 (or later) runtime must be installed even though plugins now target net8.0.
 * Work on a branch. Commit the migration with a non-releasing type such as `chore` or `build`, so it does not trigger a version bump.
 
 ```
@@ -131,7 +131,7 @@ The README targets fail the build if these conditions are not met. Check them be
 At least one factory must set the minimum version in this form, on its own line:
 
 ```csharp
-MinimumEssentialsFrameworkVersion = "2.42.4";
+MinimumEssentialsFrameworkVersion = "3.0.0";
 ```
 
 An expression-bodied property or an assignment that shares a line with other code is not recognized, and the build fails with `PDREADME001`. The version must be numeric, such as `3.0.0`; a prerelease string like `3.0.0-rc.11` is not matched, and Essentials would silently skip loading the plugin.
@@ -154,7 +154,7 @@ Add the two badges at the top of `README.md`, below the logo. The alt texts must
 
 ```markdown
 ![PepperDash Essentials](https://img.shields.io/badge/PepperDash%20Essentials-≥%20v2.0.0-blue)
-![.NET](https://img.shields.io/badge/.NET%20Framework-4.7.2-512BD4)
+![.NET](https://img.shields.io/badge/.NET-8.0-512BD4)
 ```
 
 ### Plugin documentation markers
